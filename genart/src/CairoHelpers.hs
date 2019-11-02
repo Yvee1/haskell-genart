@@ -32,7 +32,6 @@ import           Data.Time.Clock.POSIX
 import           Graphics.Rendering.Cairo
 import           Linear.V2
 import           Linear.Vector
-import qualified Numeric.Noise.Perlin     as P
 import           Text.Printf
 
 data World = World
