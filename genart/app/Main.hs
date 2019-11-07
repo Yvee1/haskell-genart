@@ -4,7 +4,10 @@
 module Main where
 
 import CairoHelpers
-import Numeric.Noise.Perlin as P
+import Numeric.Noise.Perlin
+import Data.List (nub)
+import Data.Random (uniform, randomElement)
+import Data.RVar
 
 eggshell :: Double -> Render ()
 eggshell = hsva 71 0.13 0.96
@@ -26,7 +29,7 @@ genQuadGrid :: Generate [Quad]
 genQuadGrid = do
   (w, h) <- getSize @Int
   vectors <- replicateM 800 $ do
-    v <- V2 <$> getRandomR (3, w `div` 2 - 3) <*> getRandomR (3, h `div` 2 - 3)
+    v <- V2 <$> (sampleRVar $ uniform 3 (w `div` 2 - 3)) <*> (sampleRVar $ uniform 3 (h `div` 2 - 3))
     pure $ v ^* 2
   pure . nub . flip map vectors $ \v ->
     let v' = fromIntegralVector v
@@ -55,9 +58,9 @@ quadAddNoise Quad{..} = do
     perlinScale = 0.1
     perlinPersistance = 0.5
     perlinNoise
-      = P.perlin (round perlinSeed) perlinOctaves perlinScale perlinPersistance
+      = perlin (round perlinSeed) perlinOctaves perlinScale perlinPersistance
     perlin2d (V2 x y)
-      = P.noiseValue perlinNoise (x + perlinSeed, y + perlinSeed, perlinSeed) - 0.5
+      = noiseValue perlinNoise (x + perlinSeed, y + perlinSeed, perlinSeed) - 0.5
     addNoise v = let noise = perlin2d v in v ^+^ V2 (noise / 5) (noise / 8)
 
   pure $ Quad
@@ -85,8 +88,8 @@ renderSketch = do
   noisyQuads <- traverse quadAddNoise quads
 
   for_ noisyQuads $ \quad -> do
-    strokeOrFill <- weighted [(fill, 0.4), (stroke, 0.6)]
-    color <- uniform
+    -- strokeOrFill <- sampleRVar $ weightedElement [(0.4, fill), (0.6, stroke)]
+    color <- sampleRVar $ randomElement
        [ teaGreen
        , vividTangerine
        , englishVermillion
@@ -94,7 +97,8 @@ renderSketch = do
        ]
     cairo $ do
       renderQuad quad
-      color 1 *> strokeOrFill
+      -- color 1 *> strokeOrFill
+      color 1 *> fill
 
 main :: IO ()
 main = outputSketch (60, 60, 20) renderSketch

@@ -3,36 +3,29 @@
 
 module CairoHelpers
   ( module  CairoHelpers
-  , module  Control.Arrow
-  , module  Control.Concurrent
-  , module  Control.Monad.Random
+  -- , module  Control.Monad.Random
   , module  Control.Monad.Reader
   , module  Data.Colour.RGBSpace
   , module  Data.Colour.RGBSpace.HSV
   , module  Data.Foldable            
-  , module  Data.List                
-  , module  Data.Semigroup           
   , module  Data.Time.Clock.POSIX
   , module  Graphics.Rendering.Cairo
   , module  Linear.V2
   , module  Linear.Vector
-  , module  Text.Printf
   ) where
 
 import           Control.Arrow
-import           Control.Concurrent
-import           Control.Monad.Random     hiding (next)
+-- import           Control.Monad.Random     hiding (next)
+import           Control.Monad.State
 import           Control.Monad.Reader
+import           Data.Random.Source.PureMT
 import           Data.Colour.RGBSpace
 import           Data.Colour.RGBSpace.HSV
 import           Data.Foldable            (for_)
-import           Data.List                (nub)
-import           Data.Semigroup           ((<>))
 import           Data.Time.Clock.POSIX
 import           Graphics.Rendering.Cairo
 import           Linear.V2
 import           Linear.Vector
-import           Text.Printf
 
 data World = World
   { worldWidth :: Int
@@ -41,7 +34,7 @@ data World = World
   , worldScale  :: Double
   }
 
-type Generate a = RandT StdGen (ReaderT World Render) a
+type Generate a = StateT PureMT (ReaderT World Render) a
 
 -- | Lift a Cairo action into a Generate action
 cairo :: Render a -> Generate a
@@ -73,7 +66,7 @@ outputSketch :: (Int, Int, Double) -> Generate () -> IO ()
 outputSketch (w, h, s) sketch = do
   seed <- round . (*1000) <$> getPOSIXTime
   let
-    stdGen = mkStdGen seed
+    rng = pureMT seed
     width = w
     height = h
     scaleAmount = s
@@ -83,12 +76,12 @@ outputSketch (w, h, s) sketch = do
 
   surface <- createImageSurface FormatARGB32 scaledWidth scaledHeight
   -- The "world" thinks the width and height are the initial values, not scaled.
-  let world = World width height seed scaleAmount
+  let world = World width height (fromIntegral seed) scaleAmount
 
   void
     . renderWith surface
     . flip runReaderT world
-    . flip runRandT stdGen
+    . flip runStateT rng
     $ do
       cairo $ scale scaleAmount scaleAmount
       sketch
@@ -96,5 +89,5 @@ outputSketch (w, h, s) sketch = do
   putStrLn "Generating art..."
   surfaceWriteToPNG surface
     $ "images/"
-    <> show seed <> "-" <> show (round scaleAmount :: Int) <> ".png"
+    ++ show seed ++ "-" ++ show (round scaleAmount :: Int) ++ ".png"
   surfaceWriteToPNG surface "images/latest.png"

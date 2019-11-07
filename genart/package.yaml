@@ -29,6 +29,9 @@ dependencies:
 - mtl
 - time
 - transformers
+- rvar
+- random-source
+- random-fu
 
 library:
   source-dirs: src
