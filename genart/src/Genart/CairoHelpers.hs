@@ -1,21 +1,18 @@
 {-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TypeApplications #-}
 
-module CairoHelpers
-  ( module  CairoHelpers
-  -- , module  Control.Monad.Random
+module Genart.CairoHelpers
+  ( module  Genart.CairoHelpers
   , module  Control.Monad.Reader
   , module  Data.Colour.RGBSpace
   , module  Data.Colour.RGBSpace.HSV
   , module  Data.Foldable            
-  , module  Data.Time.Clock.POSIX
   , module  Graphics.Rendering.Cairo
   , module  Linear.V2
   , module  Linear.Vector
   ) where
 
 import           Control.Arrow
--- import           Control.Monad.Random     hiding (next)
 import           Control.Monad.State
 import           Control.Monad.Reader
 import           Data.Random.Source.PureMT
@@ -28,7 +25,7 @@ import           Linear.V2
 import           Linear.Vector
 
 data World = World
-  { worldWidth :: Int
+  { worldWidth  :: Int
   , worldHeight :: Int
   , worldSeed   :: Int
   , worldScale  :: Double
@@ -51,12 +48,6 @@ fillScreen color opacity = do
   cairo $ do
     rectangle 0 0 w h
     color opacity *> fill
-
-line :: [V2 Double] -> Render ()
-line (V2 x y: vs) = do
-  newPath
-  moveTo x y
-  for_ vs $ \(V2 x' y') -> lineTo x' y'
 
 hsva :: Double -> Double -> Double -> Double -> Render ()
 hsva h s v = setSourceRGBA channelRed channelGreen channelBlue
