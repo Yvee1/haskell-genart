@@ -1,11 +1,7 @@
-{-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Main where
 
--- import CairoHelpers
--- import Shapes
--- import Noise
 import Genart
 import Data.List (nub)
 import Data.Random (uniform, randomElement)
@@ -21,11 +17,11 @@ genQuadGrid :: Generate [Polygon]
 genQuadGrid = do
   (w, h) <- getSize @Int
   points <- replicateM 800 $ do
-    v <- V2 <$> (sampleRVar $ uniform 3 (w `div` 2 - 3)) <*> (sampleRVar $ uniform 3 (h `div` 2 - 3))
+    v <- V2 <$> sampleRVar (uniform 3 (w `div` 2 - 3)) <*> sampleRVar (uniform 3 (h `div` 2 - 3))
     let pt = P $ fromIntegralVector v
     pure $ pt * 2
   pure . nub . flip map points $ \pt ->
-    Polygon [pt, (pt .+^ V2 0 1.5), (pt .+^ V2 1.5 1.5), (pt .+^ V2 1.5 0)]
+    Polygon [pt, pt .+^ V2 0 1.5, pt .+^ V2 1.5 1.5, pt .+^ V2 1.5 0]
     
 darkGunmetal :: Double -> Render ()
 darkGunmetal = hsva 170 0.30 0.16

@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 module Main where
 
-import CairoHelpers
+import Genart
 
 len = 1
 ang = 0.1
