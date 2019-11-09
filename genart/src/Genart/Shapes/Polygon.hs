@@ -6,6 +6,9 @@ import Genart.Shapes.Types
 import Genart.Shapes.Line (intersectRay)
 import Data.Maybe (fromMaybe)
 
+polygon :: [Pt] -> Polygon
+polygon = Polygon
+
 gngon :: Int -> [Pt] -> Int -> Pt -> Double -> Polygon
 gngon 0 pts n c r = Polygon pts
 gngon i pts n c@(P (V2 x y)) r = gngon (i-1) (pt : pts) n c r
@@ -40,11 +43,16 @@ decagon :: Pt -> Double -> Polygon
 decagon = ngon 10
 
 square :: Pt -> Double -> Polygon
-square p w = Polygon [p .+^ V2 (-r) (-r), p .+^ V2 (-r) r, p .+^ V2 r r, p .+^ V2 r (-r)]
-    where r = w/2
+square p w = square' p (w/2)
 
 square' :: Pt -> Double -> Polygon
-square' p r = Polygon [p .+^ V2 (-r) (-r), p .+^ V2 (-r) r, p .+^ V2 r r, p .+^ V2 r (-r)]
+square' p r = rect' p r r
+
+rect :: Pt -> Double -> Double -> Polygon
+rect p wx wy = rect' p (wx/2) (wy/2)
+
+rect' :: Pt -> Double -> Double -> Polygon
+rect' p rx ry = Polygon [p .+^ V2 (-rx) (-ry), p .+^ V2 (-rx) ry, p .+^ V2 rx ry, p .+^ V2 rx (-ry)]
 
 adjacentSides :: Polygon -> Int -> (Line, Line)
 adjacentSides (Polygon pts) i = 
@@ -73,3 +81,6 @@ inradius (Polygon (pt1 : pt2 : pts)) =
 
 incircle :: Polygon -> Circle
 incircle polygon = Circle (incenter polygon) (inradius polygon)
+
+chaikinPolygonStep :: Polygon -> Polygon
+chaikinPolygonStep (Polygon pts) = Polygon (chaikinStep (last pts : pts))

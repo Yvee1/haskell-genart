@@ -16,3 +16,6 @@ intersectRay (Line (P (V2 x1 y1)) (P (V2 x2 y2))) (Line (P (V2 x3 y3)) (P (V2 x4
 infix 4 .~
 (.~) :: Pt -> Vec -> Line
 pt .~ v = Line pt (pt .+^ v)
+
+(~~) :: (Trail t1, Trail t2) => t1 -> t2 -> Curve
+t1 ~~ t2 = Curve (pointsOn t1 ++ pointsOn t2) 

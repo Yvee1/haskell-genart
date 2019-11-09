@@ -15,11 +15,18 @@ type Pt = Point V2 Double
 class Draw a where
   draw :: a -> Render ()
 
--- class Shape s where
+class Shape s where
   -- center :: s -> Pt
+  -- scaleX :: Shape t => s -> t
+
+class Trail t where
+  pointsOn :: t -> [Pt]
 
 instance Draw Pt where
   draw (P (V2 x y)) = arc x y 1 0 (2 * pi)
+
+instance Trail Pt where
+  pointsOn p = [p]
 
 instance Draw Vec where
   draw v = polyline [P (V2 0 0), P v]
@@ -78,3 +85,28 @@ data Line = Line Pt Pt
 
 instance Draw Line where
   draw (Line pt1 pt2) = polyline [pt1, pt2] 
+
+instance Trail Line where
+  pointsOn (Line pt1 pt2) = [pt1, pt2] 
+
+-------------------------------
+-- Curve
+
+newtype Curve = Curve [Pt]
+  deriving (Show, Eq)
+
+instance Draw Curve where
+  draw (Curve pts) = polyline pts
+
+instance Trail Curve where
+  pointsOn (Curve pts) = pts
+
+chaikinStep :: [Pt] -> [Pt]
+chaikinStep (pt1 : pt2 : pts) = [pt1 * 0.75 + pt2 * 0.25, pt1 * 0.25 + pt2 * 0.75] ++ chaikinStep (pt2 : pts)
+chaikinStep _ = []
+
+-------------------------------
+-- Ellipse
+-- Two foci and the constant
+-- data Ellipse = Ellipse Pt Pt Double
+
