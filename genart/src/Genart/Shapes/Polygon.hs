@@ -3,24 +3,13 @@ module Genart.Shapes.Polygon where
 
 import Genart.CairoHelpers
 import Genart.Shapes.Types
-
-newtype Polygon = Polygon [Pt]
-  deriving (Eq, Show)
-instance Draw Polygon where
-  draw (Polygon pts) = renderClosedPath pts
-
-renderClosedPath :: [Pt] -> Render ()
-renderClosedPath [] = pure ()
-renderClosedPath (P (V2 x y) : pts) = do
-  newPath
-  moveTo x y
-  for_ pts $ \(P (V2 x' y')) -> lineTo x' y'
-  closePath
+import Genart.Shapes.Line (intersectRay)
+import Data.Maybe (fromMaybe)
 
 gngon :: Int -> [Pt] -> Int -> Pt -> Double -> Polygon
 gngon 0 pts n c r = Polygon pts
 gngon i pts n c@(P (V2 x y)) r = gngon (i-1) (pt : pts) n c r
-  where angle = 2 * pi * fromIntegral i / fromIntegral n - pi / 2
+  where angle = 2 * pi * fromIntegral (n-i+1) / fromIntegral n - pi / 2
         pt = point (x + r * cos angle) (y + r * sin angle)
 
 ngon:: Int -> Pt -> Double -> Polygon
@@ -29,8 +18,8 @@ ngon sides center radius = gngon sides [] sides center radius
 triangle :: Pt -> Double -> Polygon
 triangle = ngon 3
 
-square :: Pt -> Double -> Polygon
-square = ngon 4
+tetragon :: Pt -> Double -> Polygon
+tetragon = ngon 4
 
 pentagon :: Pt -> Double -> Polygon
 pentagon = ngon 5
@@ -49,3 +38,38 @@ nonagon = ngon 9
 
 decagon :: Pt -> Double -> Polygon
 decagon = ngon 10
+
+square :: Pt -> Double -> Polygon
+square p w = Polygon [p .+^ V2 (-r) (-r), p .+^ V2 (-r) r, p .+^ V2 r r, p .+^ V2 r (-r)]
+    where r = w/2
+
+square' :: Pt -> Double -> Polygon
+square' p r = Polygon [p .+^ V2 (-r) (-r), p .+^ V2 (-r) r, p .+^ V2 r r, p .+^ V2 r (-r)]
+
+adjacentSides :: Polygon -> Int -> (Line, Line)
+adjacentSides (Polygon pts) i = 
+  (Line (pts !! i) (pts !! ((i+1) `rem` n)),
+   Line (pts !! i) (pts !! ((i-1) `mod` n)))
+    where n = length pts
+
+bisector :: Polygon -> Int -> Vec
+bisector p i = 
+  let (Line a1 a2, Line b1 b2) = adjacentSides p i in
+    (normalize (a2 .-. a1) ^+^ normalize (b2 .-. b1)) / 2
+
+incenter :: Polygon -> Pt
+incenter p@ (Polygon (pt1 : pt2 : _)) =
+  let a = pt1 .+^ bisector p 0
+      b = pt2 .+^ bisector p 1
+      in
+        fromMaybe pt1 $ intersectRay (Line pt1 a) (Line pt2 b)
+
+inradius :: Polygon -> Double
+inradius (Polygon (pt1 : pt2 : pts)) = 
+  let len = norm (pt1 .-. pt2) 
+      n = length (pt1 : pt2 : pts)
+        in
+          len / (2 * tan (pi / fromIntegral n))
+
+incircle :: Polygon -> Circle
+incircle polygon = Circle (incenter polygon) (inradius polygon)

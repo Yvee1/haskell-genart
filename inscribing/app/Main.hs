@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Test where
+module Main where
 
 import Genart
 import Control.Monad
@@ -50,5 +50,5 @@ renderSketch = do
     foldM_ (once c) 40 [40, 39..3]
     -- foldM_ (once' c) 40 [3..50]
 
-test :: IO ()
-test = outputSketch (100, 100, 10) renderSketch
+main :: IO ()
+main = outputSketch (100, 100, 10) renderSketch
