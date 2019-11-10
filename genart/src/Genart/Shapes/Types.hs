@@ -22,6 +22,12 @@ class Shape s where
 class Trail t where
   pointsOn :: t -> [Pt]
 
+class Smooth a where
+  chaikinStep :: a -> a
+
+  chaikin :: a -> a
+  chaikin a = iterate chaikinStep a !! 4
+
 instance Draw Pt where
   draw (P (V2 x y)) = arc x y 1 0 (2 * pi)
 
@@ -53,8 +59,12 @@ x ^& y = V2 x y
 
 newtype Polygon = Polygon [Pt]
   deriving (Eq, Show)
+
 instance Draw Polygon where
   draw (Polygon pts) = renderClosedPath pts
+
+instance Smooth Polygon where
+  chaikinStep (Polygon pts) = Polygon (generalChaikinStep (last pts : pts))
 
 renderClosedPath :: [Pt] -> Render ()
 renderClosedPath [] = pure ()
@@ -101,9 +111,12 @@ instance Draw Curve where
 instance Trail Curve where
   pointsOn (Curve pts) = pts
 
-chaikinStep :: [Pt] -> [Pt]
-chaikinStep (pt1 : pt2 : pts) = [pt1 * 0.75 + pt2 * 0.25, pt1 * 0.25 + pt2 * 0.75] ++ chaikinStep (pt2 : pts)
-chaikinStep _ = []
+instance Smooth Curve where
+  chaikinStep (Curve pts) = Curve (generalChaikinStep pts)
+
+generalChaikinStep :: [Pt] -> [Pt]
+generalChaikinStep (pt1 : pt2 : pts) = [pt1 * 0.75 + pt2 * 0.25, pt1 * 0.25 + pt2 * 0.75] ++ generalChaikinStep (pt2 : pts)
+generalChaikinStep _ = []
 
 -------------------------------
 -- Ellipse

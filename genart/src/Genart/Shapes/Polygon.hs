@@ -81,6 +81,3 @@ inradius (Polygon (pt1 : pt2 : pts)) =
 
 incircle :: Polygon -> Circle
 incircle polygon = Circle (incenter polygon) (inradius polygon)
-
-chaikinPolygonStep :: Polygon -> Polygon
-chaikinPolygonStep (Polygon pts) = Polygon (chaikinStep (last pts : pts))
