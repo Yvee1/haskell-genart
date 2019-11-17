@@ -26,7 +26,7 @@ class Smooth a where
   chaikinStep :: a -> a
 
   chaikin :: a -> a
-  chaikin a = iterate chaikinStep a !! 4
+  chaikin a = iterate chaikinStep a !! 5
 
 instance Draw Pt where
   draw (P (V2 x y)) = arc x y 1 0 (2 * pi)

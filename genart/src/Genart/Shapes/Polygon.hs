@@ -60,6 +60,18 @@ adjacentSides (Polygon pts) i =
    Line (pts !! i) (pts !! ((i-1) `mod` n)))
     where n = length pts
 
+area :: Polygon -> Double
+area (Polygon pts) = abs $ area' 0 (last pts : pts)
+  where area' a (p1 : p2 : ps) = area' (a + det p1 p2) (p2 : ps)
+        area' a _ = a
+        det (P (V2 x1 y1)) (P (V2 x2 y2)) = x1 * y2 - y1 * x2 
+
+perimeter :: Polygon -> Double
+perimeter (Polygon pts) = perimeter' 0 (last pts : pts)
+  where perimeter' :: Double -> [Pt] -> Double
+        perimeter' p (p1 : p2 : ps) = perimeter' (p + norm (p1 .-. p2)) (p2 : ps)
+        perimeter' p _ = p
+        
 bisector :: Polygon -> Int -> Vec
 bisector p i = 
   let (Line a1 a2, Line b1 b2) = adjacentSides p i in
@@ -72,12 +84,37 @@ incenter p@ (Polygon (pt1 : pt2 : _)) =
       in
         fromMaybe pt1 $ intersectRay (Line pt1 a) (Line pt2 b)
 
+-- inradius :: Polygon -> Double
+-- inradius (Polygon (pt1 : pt2 : pts)) = 
+--   let len = norm (pt1 .-. pt2) 
+--       n = length (pt1 : pt2 : pts)
+--         in
+--           len / (2 * tan (pi / fromIntegral n))
+
 inradius :: Polygon -> Double
-inradius (Polygon (pt1 : pt2 : pts)) = 
-  let len = norm (pt1 .-. pt2) 
-      n = length (pt1 : pt2 : pts)
-        in
-          len / (2 * tan (pi / fromIntegral n))
+inradius poly = area poly / perimeter poly
 
 incircle :: Polygon -> Circle
 incircle polygon = Circle (incenter polygon) (inradius polygon)
+
+triangulateConvexPoints :: [Pt] -> [[Pt]]
+triangulateConvexPoints pts
+  | length pts < 3 = []
+  | otherwise = let (pt1 : pt2 : pt3 : stuff) = pts in
+    [pt1, pt2, pt3] : triangulateConvexPoints (pt1 : pt3 : stuff) 
+
+triangulateConvexPolygon :: Polygon -> [Polygon]
+triangulateConvexPolygon (Polygon pts) = map Polygon $ triangulateConvexPoints pts
+
+triangulateConvexPointsFromCenter :: [Pt] -> [[Pt]]
+triangulateConvexPointsFromCenter pts = triangulateConvexPointsFromCenter' (centroid pts) (last pts : pts) where
+  triangulateConvexPointsFromCenter' c points
+    | length points < 2 = []
+    | otherwise = let (pt1 : pt2 : stuff) = points in
+      [c, pt1, pt2] : triangulateConvexPointsFromCenter' c (pt2 : stuff) 
+
+triangulateConvexPolygonFromCenter :: Polygon -> [Polygon]
+triangulateConvexPolygonFromCenter (Polygon pts) = map Polygon $ triangulateConvexPointsFromCenter pts
+
+centroid :: [Pt] -> Pt
+centroid pts = sum pts / fromIntegral (length pts)
