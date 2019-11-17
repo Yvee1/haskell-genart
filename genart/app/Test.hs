@@ -4,6 +4,7 @@ module Test where
 
 import Genart
 import Control.Monad
+import Data.List (nub)
 
 eggshell :: Double -> Render ()
 eggshell = hsva 71 0.13 0.96
@@ -41,25 +42,43 @@ grid = outputSketch (100, 100, 10) $ do
     popGroupToSource
 
     sequence_ [draw (square (x .& y) 3) *> fill | x <- [5, 10..95], y <- [5, 10..95]]
-    
+  
+
+color r
+  | r < 0.5 = hexa "4dd599" 1 
+  | r < 1 = hexa "FFDC30" 1
+  | otherwise = hexa "00918e" 1
+-- color r
+--   | r < 0.5 = hexa "fff3fb" 1 
+--   | r < 1 = hexa "a5638f" 1
+--   | otherwise = hexa "ffd2ea" 1
+
+
 test :: IO ()
 test = do 
-  
+  let s = ngon 3 (50 .& 58) 40
+  let initial = triangulateConvexPolygonFromCenter s
+  let triangles = iterate (concatMap triangulateConvexPolygonFromCenter) initial !! 7
+  let circles = map incircle triangles
+  let radii = nub $ map (\(Circle _ r) -> r) circles
+  print $ minimum radii
+
   outputSketch (100, 100, 10) $ do
-    fillScreen white 1
+    -- fillScreen (hexa "110133") 1
+    fillScreen (hexa "002b70") 1
     (w, h) <- getSize @Double
     let c = w/2 .& h/2
 
     cairo $ do
-      setLineWidth 0.35
+      setLineWidth 0.1
 
-      -- let path2 = (-30) .& 130 ~~ 10 .& 90 ~~ 30 .& 65 ~~ 60 .& 15 ~~ 90 .& 5 ~~ 120 .& (-20)
-      -- draw path2
-      -- black 1
-      -- stroke
-      let s = square c 50
-      draw $ chaikin s
-      black 1
-      stroke
+      -- mapM_ (\t -> draw t *> hsva 100 0.5 0.6 1 *> strokePreserve *> darkGunmetal 1 *> fill) triangles
+      mapM_ (\t -> draw t *> white 0.05 *> stroke) triangles
+      
+      -- mapM_ (\c@(Circle _ r) -> draw c *> color r *> fill) circles
+      -- mapM_ (\c@(Circle _ r) -> draw c *> if r < 1 then pure () else white 1 *> fill) circles
 
-  putStrLn "Done"
+        
+      
+
+  putStrLn "done"
