@@ -32,6 +32,7 @@ dependencies:
 - rvar
 - random-source
 - random-fu
+- split
 
 library:
   source-dirs: src

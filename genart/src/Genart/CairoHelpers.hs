@@ -12,17 +12,19 @@ module Genart.CairoHelpers
   , module  Linear.Vector
   ) where
 
-import           Control.Arrow
-import           Control.Monad.State
-import           Control.Monad.Reader
-import           Data.Random.Source.PureMT
-import           Data.Colour.RGBSpace
-import           Data.Colour.RGBSpace.HSV
-import           Data.Foldable            (for_)
-import           Data.Time.Clock.POSIX
-import           Graphics.Rendering.Cairo
-import           Linear.V2
-import           Linear.Vector
+import Control.Arrow
+import Control.Monad.State
+import Control.Monad.Reader
+import Data.Random.Source.PureMT
+import Data.Colour.RGBSpace
+import Data.Colour.RGBSpace.HSV
+import Data.Foldable            (for_)
+import Data.Time.Clock.POSIX
+import Graphics.Rendering.Cairo
+import Linear.V2
+import Linear.Vector
+import Numeric (readHex)
+import Data.List.Split (splitOn, chunksOf)
 
 data World = World
   { worldWidth  :: Int
@@ -52,6 +54,15 @@ fillScreen color opacity = do
 hsva :: Double -> Double -> Double -> Double -> Render ()
 hsva h s v = setSourceRGBA channelRed channelGreen channelBlue
  where RGB{..} = hsv h s v
+
+hexa :: String -> Double -> Render ()
+hexa s = setSourceRGBA r g b
+  where (r, g, b) = hexToRGB s
+
+hexToRGB :: String -> (Double, Double, Double)
+hexToRGB s = (r, g, b)
+  where [r, g, b] = map ((/255) . fst . head . readHex) $ (chunksOf 2 . last . splitOn "#") s
+
 
 outputSketch :: (Int, Int, Double) -> Generate () -> IO ()
 outputSketch (w, h, s) sketch = do
