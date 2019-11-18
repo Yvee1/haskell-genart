@@ -56,29 +56,23 @@ color r
 
 test :: IO ()
 test = do 
-  let s = ngon 3 (50 .& 58) 40
-  let initial = triangulateConvexPolygonFromCenter s
-  let triangles = iterate (concatMap triangulateConvexPolygonFromCenter) initial !! 7
-  let circles = map incircle triangles
-  let radii = nub $ map (\(Circle _ r) -> r) circles
-  print $ minimum radii
+  let t = ngon 3 (50 .& 58) 40
 
   outputSketch (100, 100, 10) $ do
-    -- fillScreen (hexa "110133") 1
-    fillScreen (hexa "002b70") 1
+    fillScreen white 1
     (w, h) <- getSize @Double
     let c = w/2 .& h/2
 
+    -- cairo $ do
+    --   draw $ c ~~ t ~~ 80 .& 20
+    --   stroke
+    
+    pts <- replicateM 1000 (randomInsideTriangle t)
+
     cairo $ do
       setLineWidth 0.1
-
-      -- mapM_ (\t -> draw t *> hsva 100 0.5 0.6 1 *> strokePreserve *> darkGunmetal 1 *> fill) triangles
-      mapM_ (\t -> draw t *> white 0.05 *> stroke) triangles
-      
-      -- mapM_ (\c@(Circle _ r) -> draw c *> color r *> fill) circles
-      -- mapM_ (\c@(Circle _ r) -> draw c *> if r < 1 then pure () else white 1 *> fill) circles
-
-        
+      black 1
+      mapM_ (\pt -> draw (circle pt 0.2) *> stroke) pts
       
 
   putStrLn "done"

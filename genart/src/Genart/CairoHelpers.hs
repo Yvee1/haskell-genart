@@ -63,7 +63,6 @@ hexToRGB :: String -> (Double, Double, Double)
 hexToRGB s = (r, g, b)
   where [r, g, b] = map ((/255) . fst . head . readHex) $ (chunksOf 2 . last . splitOn "#") s
 
-
 outputSketch :: (Int, Int, Double) -> Generate () -> IO ()
 outputSketch (w, h, s) sketch = do
   seed <- round . (*1000) <$> getPOSIXTime

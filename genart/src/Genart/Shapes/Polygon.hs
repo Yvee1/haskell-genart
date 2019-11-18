@@ -61,13 +61,13 @@ adjacentSides (Polygon pts) i =
     where n = length pts
 
 area :: Polygon -> Double
-area (Polygon pts) = abs $ area' 0 (last pts : pts)
+area (Polygon pts) = abs $ area' 0 (closed pts)
   where area' a (p1 : p2 : ps) = area' (a + det p1 p2) (p2 : ps)
         area' a _ = a
         det (P (V2 x1 y1)) (P (V2 x2 y2)) = x1 * y2 - y1 * x2 
 
 perimeter :: Polygon -> Double
-perimeter (Polygon pts) = perimeter' 0 (last pts : pts)
+perimeter (Polygon pts) = perimeter' 0 (closed pts)
   where perimeter' :: Double -> [Pt] -> Double
         perimeter' p (p1 : p2 : ps) = perimeter' (p + norm (p1 .-. p2)) (p2 : ps)
         perimeter' p _ = p
@@ -107,7 +107,7 @@ triangulateConvexPolygon :: Polygon -> [Polygon]
 triangulateConvexPolygon (Polygon pts) = map Polygon $ triangulateConvexPoints pts
 
 triangulateConvexPointsFromCenter :: [Pt] -> [[Pt]]
-triangulateConvexPointsFromCenter pts = triangulateConvexPointsFromCenter' (centroid pts) (last pts : pts) where
+triangulateConvexPointsFromCenter pts = triangulateConvexPointsFromCenter' (centroid pts) (closed pts) where
   triangulateConvexPointsFromCenter' c points
     | length points < 2 = []
     | otherwise = let (pt1 : pt2 : stuff) = points in
