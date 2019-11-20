@@ -10,6 +10,9 @@ import Genart.Random
 import Linear.Affine
 import Linear.Metric
 
+import Data.Random
+import Data.RVar
+
 -------------------------------
 -- Type classes
 
@@ -21,6 +24,18 @@ class Shape s where
 
 class Trail t where
   pointsOn :: t -> [Pt]
+
+class PtLike p where
+  getX :: p -> Double
+  getY :: p -> Double
+
+instance PtLike (Double, Double) where
+  getX (x, _) = x
+  getY (_, y) = y
+
+-- instance PtLike (Integer, Integer) where
+--   getX (x, _) = fromIntegral x
+--   getY (_, y) = fromIntegral y
 
 class Smooth a where
   chaikinStep :: a -> a
@@ -39,12 +54,22 @@ instance Draw Pt where
 instance Trail Pt where
   pointsOn p = [p]
 
+instance PtLike Pt where
+  getX (P (V2 x _)) = x
+  getY (P (V2 _ y)) = y
+
 point :: Double -> Double -> Pt
 point x y = P (V2 x y)
 
 infix 5 .&
 (.&) :: Double -> Double -> Pt
 (.&) = point
+
+randomPt :: (MonadRandom m) => (Double, Double) -> (Double, Double) -> m Pt
+randomPt (x1, x2) (y1, y2) = 
+  do x <- x1 <=> x2
+     y <- y1 <=> y2
+     pure $ point x y
 
 -------------------------------
 -- Vector
@@ -53,6 +78,10 @@ type Vec = V2 Double
 
 instance Draw Vec where
   draw v = polyline [P (V2 0 0), P v]
+
+instance PtLike Vec where
+  getX (V2 x _) = x
+  getY (V2 _ y) = y
 
 infix 5 ^&
 (^&) :: Double -> Double -> Vec

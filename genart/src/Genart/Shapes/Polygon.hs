@@ -9,47 +9,51 @@ import Data.Maybe (fromMaybe)
 polygon :: [Pt] -> Polygon
 polygon = Polygon
 
-gngon :: Int -> [Pt] -> Int -> Pt -> Double -> Polygon
+gngon :: PtLike p => Int -> [Pt] -> Int -> p -> Double -> Polygon
 gngon 0 pts n c r = Polygon pts
-gngon i pts n c@(P (V2 x y)) r = gngon (i-1) (pt : pts) n c r
+gngon i pts n c r = gngon (i-1) (pt : pts) n c r
   where angle = 2 * pi * fromIntegral (n-i+1) / fromIntegral n - pi / 2
         pt = point (x + r * cos angle) (y + r * sin angle)
+        x = getX c
+        y = getY c
 
-ngon:: Int -> Pt -> Double -> Polygon
+ngon:: PtLike p => Int -> p -> Double -> Polygon
 ngon sides center radius = gngon sides [] sides center radius
 
-triangle :: Pt -> Double -> Polygon
+triangle :: PtLike p => p -> Double -> Polygon
 triangle = ngon 3
 
-tetragon :: Pt -> Double -> Polygon
+tetragon :: PtLike p => p -> Double -> Polygon
 tetragon = ngon 4
 
-pentagon :: Pt -> Double -> Polygon
+pentagon :: PtLike p => p -> Double -> Polygon
 pentagon = ngon 5
 
-hexagon :: Pt -> Double -> Polygon
+hexagon :: PtLike p => p -> Double -> Polygon
 hexagon = ngon 6
 
-heptagon :: Pt -> Double -> Polygon
+heptagon :: PtLike p => p -> Double -> Polygon
 heptagon = ngon 7
 
-octagon :: Pt -> Double -> Polygon
+octagon :: PtLike p => p -> Double -> Polygon
 octagon = ngon 8
 
-nonagon :: Pt -> Double -> Polygon
+nonagon :: PtLike p => p -> Double -> Polygon
 nonagon = ngon 9
 
-decagon :: Pt -> Double -> Polygon
+decagon :: PtLike p => p -> Double -> Polygon
 decagon = ngon 10
 
-square :: Pt -> Double -> Polygon
+square :: PtLike p => p -> Double -> Polygon
 square p w = square' p (w/2)
+  where p = point (getX p) (getY p)
 
-square' :: Pt -> Double -> Polygon
+square' :: Pt-> Double -> Polygon
 square' p r = rect' p r r
 
-rect :: Pt -> Double -> Double -> Polygon
+rect :: PtLike p => p -> Double -> Double -> Polygon
 rect p wx wy = rect' p (wx/2) (wy/2)
+  where p = point (getX p) (getY p)
 
 rect' :: Pt -> Double -> Double -> Polygon
 rect' p rx ry = Polygon [p .+^ V2 (-rx) (-ry), p .+^ V2 (-rx) ry, p .+^ V2 rx ry, p .+^ V2 rx (-ry)]
