@@ -33,6 +33,7 @@ dependencies:
 - random-source
 - random-fu
 - split
+- directory
 
 library:
   source-dirs: src

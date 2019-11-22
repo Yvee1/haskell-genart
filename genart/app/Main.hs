@@ -58,4 +58,4 @@ renderSketch = do
       color 1 *> strokeOrFill
 
 main :: IO ()
-main = outputSketch (60, 60, 20) renderSketch
+main = outputSketch (60, 60, 20, False) renderSketch

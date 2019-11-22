@@ -6,7 +6,7 @@ import Numeric.Noise.Perlin
 
 polyAddNoise :: Polygon -> Generate Polygon
 polyAddNoise (Polygon pts) = do
-  perlinSeed <- fromIntegral <$> asks worldSeed
+  perlinSeed <- fromIntegral <$> asks gcSeed
 
   let
     perlinOctaves = 5

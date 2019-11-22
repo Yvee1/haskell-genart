@@ -19,7 +19,7 @@ englishVermillion :: Double -> Render ()
 englishVermillion = hsva 355 0.68 0.84
 
 grid :: IO ()
-grid = outputSketch (100, 100, 10) $ do
+grid = outputSketch (100, 100, 10, False) $ do
   fillScreen darkGunmetal 1
   (w, h) <- getSize @Double
   let c = w/2 .& h/2
@@ -61,7 +61,7 @@ test = do
   let t = t'
   -- let t = Polygon ()
 
-  outputSketch (100, 100, 10) $ do
+  outputSketch (100, 100, 10, True) $ do
     fillScreen (hexa "FFEBD1") 1
     (w, h) <- getSize @Double
     let c = w/2 .& h/2
@@ -78,8 +78,10 @@ test = do
       hexa "#05533F" 1
       translate 50 42
       rotate pi
-      mapM_ (\pt -> draw (triangle pt 10) *> fill) pts
-      black 1
+    
+    mapM_ (\pt -> cairo (draw (triangle pt 10)) *> cairo fill *> renderProgress) pts
+    pure ()
+      -- black 1
       -- mapM_ (\pt -> draw pt *> fill) pts
 
   putStrLn "done"
