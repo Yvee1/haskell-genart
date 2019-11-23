@@ -6,19 +6,11 @@ import Lib
 import Genart
 import Control.Monad
 
-drawSquare :: Double -> Double -> Generate (Render ())
-drawSquare x y = do
-  (w, h) <- getSize @Double
-  return $ do
-    setSourceRGBA 1 1 1 1
-    rectangle x y 2 2
-    fill
-
 sketch :: Generate ()
 sketch = do
-  startState <- start 800 50 50 0 (-1)
+  startState <- start 500 50 50 0 (-1)
   let trunk = reach startState
-  (branches, sources) <- foldr (<=<) return (replicate 50 step) trunk
+  (branches, sources) <- foldr (<=<) return (replicate 300 step) trunk
 
   let lines = map branchToLine branches
 

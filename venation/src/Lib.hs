@@ -32,8 +32,8 @@ type Branch = Tree Props
 type State = ([Branch], [Source])
 
 maxDist = 20
-minDist = 2
-len = 0.5 :: Double
+len = 1 :: Double
+minDist = len
 
 initiateSources :: Int -> Generate [Source]
 initiateSources n = do
