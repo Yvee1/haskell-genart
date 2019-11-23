@@ -111,14 +111,14 @@ triangulateConvexPolygon :: Polygon -> [Polygon]
 triangulateConvexPolygon (Polygon pts) = map Polygon $ triangulateConvexPoints pts
 
 triangulateConvexPointsFromCenter :: [Pt] -> [[Pt]]
-triangulateConvexPointsFromCenter pts = triangulateConvexPointsFromCenter' (centroid pts) (closed pts) where
+triangulateConvexPointsFromCenter pts = triangulateConvexPointsFromCenter' (centroid %% pts) (closed pts) where
   triangulateConvexPointsFromCenter' c points
     | length points < 2 = []
     | otherwise = let (pt1 : pt2 : stuff) = points in
       [c, pt1, pt2] : triangulateConvexPointsFromCenter' c (pt2 : stuff) 
 
 triangulateConvexPolygonFromCenter :: Polygon -> [Polygon]
-triangulateConvexPolygonFromCenter (Polygon pts) = map Polygon $ triangulateConvexPointsFromCenter pts
+triangulateConvexPolygonFromCenter poly = (map Polygon . triangulateConvexPointsFromCenter) ## poly
 
-centroid :: [Pt] -> Pt
-centroid pts = sum pts / fromIntegral (length pts)
+centroid :: Polygon -> Pt
+centroid (Polygon pts) = sum pts / fromIntegral (length pts)

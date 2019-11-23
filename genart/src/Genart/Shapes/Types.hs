@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+
 module Genart.Shapes.Types (
   module Genart.Shapes.Types,
   module Linear.Affine,
@@ -43,6 +44,11 @@ class Smooth a where
   chaikin :: a -> a
   chaikin a = iterate chaikinStep a !! 5
 
+class PtList t where
+  (#) :: ([Pt] -> [Pt]) -> t -> t
+  (##) :: ([Pt] -> a) -> t -> a
+  (%%) :: (t -> a) -> [Pt] -> a
+
 -------------------------------
 -- Point
 
@@ -66,7 +72,9 @@ infix 5 .&
 (.&) = point
 
 randomPt :: (MonadRandom m) => (Double, Double) -> (Double, Double) -> m Pt
-randomPt = P randomVec
+randomPt xrange yrange =
+  do vec <- randomVec xrange yrange
+     return (P vec)
 
 -------------------------------
 -- Vector
@@ -115,6 +123,12 @@ instance Shape Polygon where
   randomInside p@(Polygon pts)
     | length pts == 3 = randomInsideTriangle p
     | otherwise = undefined
+
+instance PtList Polygon where
+  f # Polygon pts = Polygon (f pts)
+  f ## Polygon pts = f pts
+  (%%) = (. Polygon)
+  -- f %% pts = (\(Polygon pts) -> pts) (f poly)
 
 randomInsideTriangle :: Polygon -> Generate Pt
 randomInsideTriangle (Polygon [pt1, pt2, pt3]) = 
@@ -180,6 +194,10 @@ instance Trail Curve where
 
 instance Smooth Curve where
   chaikinStep (Curve pts) = Curve (generalChaikinStep pts)
+
+instance PtList Curve where
+  f # Curve pts = Curve (f pts)
+  f ## Curve pts = f pts
 
 generalChaikinStep :: [Pt] -> [Pt]
 generalChaikinStep (pt1 : pt2 : pts) = [pt1 * 0.75 + pt2 * 0.25, pt1 * 0.25 + pt2 * 0.75] ++ generalChaikinStep (pt2 : pts)
