@@ -66,10 +66,7 @@ infix 5 .&
 (.&) = point
 
 randomPt :: (MonadRandom m) => (Double, Double) -> (Double, Double) -> m Pt
-randomPt (x1, x2) (y1, y2) = 
-  do x <- x1 <=> x2
-     y <- y1 <=> y2
-     pure $ point x y
+randomPt = P randomVec
 
 -------------------------------
 -- Vector
@@ -92,6 +89,12 @@ polyline (P (V2 x y) : ps) = do
   newPath
   moveTo x y
   for_ ps $ \(P (V2 x' y')) -> lineTo x' y'
+
+randomVec :: (MonadRandom m) => (Double, Double) -> (Double, Double) -> m Vec
+randomVec (x1, x2) (y1, y2) = 
+  do x <- x1 <=> x2
+     y <- y1 <=> y2
+     pure $ V2 x y
 
 -------------------------------
 -- Polygon

@@ -56,32 +56,24 @@ color r
 
 test :: IO ()
 test = do 
-  -- let t' = ngon 3 (50 .& 58) 80
   let t' = ngon 3 (0 .& 0) 100
   let t = t'
-  -- let t = Polygon ()
 
   outputSketch (100, 100, 10, True) $ do
-    fillScreen (hexa "FFEBD1") 1
+    -- fillScreen (hexa "FFEBD1") 1
+    fillScreen (hexa "05533F") 1
     (w, h) <- getSize @Double
     let c = w/2 .& h/2
 
-    -- pts'' <- replicateM 200 (randomInsideTriangle t)
     pts <- replicateM 800 (randomPt (-w/2, w/2) (-h/4, h/2))
-    -- let ts = map (`triangle` 8) pts''
-    -- pts' <- mapM (replicateM 1100 . randomInsideTriangle) ts
-    -- let pts = concat pts'
 
     cairo $ do
       setLineWidth 0.1
       -- hexa "#05538F" 1
-      hexa "#05533F" 1
+      hexa "#DDEBE1" 1
       translate 50 42
       rotate pi
     
     mapM_ (\pt -> cairo (draw (triangle pt 10)) *> cairo fill *> renderProgress) pts
-    pure ()
-      -- black 1
-      -- mapM_ (\pt -> draw pt *> fill) pts
 
   putStrLn "done"

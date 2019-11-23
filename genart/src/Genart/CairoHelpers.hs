@@ -97,6 +97,9 @@ outputSketch (w, h, s, renderAnimate) sketch = do
     --   sketch
 
   putStrLn "Generating art..."
+
+  liftIO $ createDirectoryIfMissing True "images"
+
   surfaceWriteToPNG surface
     $ "images/"
     ++ show seed ++ "-" ++ show (round scaleAmount :: Int) ++ ".png"
