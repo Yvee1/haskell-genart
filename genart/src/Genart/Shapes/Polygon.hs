@@ -44,20 +44,6 @@ nonagon = ngon 9
 decagon :: PtLike p => p -> Double -> Polygon
 decagon = ngon 10
 
-square :: PtLike p => p -> Double -> Polygon
-square p w = square' p (w/2)
-  where p = point (getX p) (getY p)
-
-square' :: Pt-> Double -> Polygon
-square' p r = rect' p r r
-
-rect :: PtLike p => p -> Double -> Double -> Polygon
-rect p wx wy = rect' p (wx/2) (wy/2)
-  where p = point (getX p) (getY p)
-
-rect' :: Pt -> Double -> Double -> Polygon
-rect' p rx ry = Polygon [p .+^ V2 (-rx) (-ry), p .+^ V2 (-rx) ry, p .+^ V2 rx ry, p .+^ V2 rx (-ry)]
-
 adjacentSides :: Polygon -> Int -> (Line, Line)
 adjacentSides (Polygon pts) i = 
   (Line (pts !! i) (pts !! ((i+1) `rem` n)),
@@ -87,13 +73,6 @@ incenter p@ (Polygon (pt1 : pt2 : _)) =
       b = pt2 .+^ bisector p 1
       in
         fromMaybe pt1 $ intersectRay (Line pt1 a) (Line pt2 b)
-
--- inradius :: Polygon -> Double
--- inradius (Polygon (pt1 : pt2 : pts)) = 
---   let len = norm (pt1 .-. pt2) 
---       n = length (pt1 : pt2 : pts)
---         in
---           len / (2 * tan (pi / fromIntegral n))
 
 inradius :: Polygon -> Double
 inradius poly = area poly / perimeter poly

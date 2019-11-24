@@ -51,12 +51,12 @@ getSize = do
   (w, h) <- asks (gcWidth &&& gcHeight)
   pure (fromIntegral w, fromIntegral h)
 
-fillScreen :: (Double -> Render a) -> Double -> Generate ()
-fillScreen color opacity = do
+fillScreen :: Render a -> Generate ()
+fillScreen color = do
   (w, h) <- getSize @Double
   cairo $ do
     rectangle 0 0 w h
-    color opacity *> fill
+    color *> fill
 
 hsva :: Double -> Double -> Double -> Double -> Render ()
 hsva h s v = setSourceRGBA channelRed channelGreen channelBlue
