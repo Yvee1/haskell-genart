@@ -43,42 +43,29 @@ grid = outputSketch (100, 100, 10, False) $ do
 
     sequence_ [draw (square (x :& y) 3) *> fill | x <- [5, 10..95], y <- [5, 10..95]]
   
-
-color r
-  | r < 0.5 = hexa "4dd599" 1 
-  | r < 1 = hexa "FFDC30" 1
-  | otherwise = hexa "00918e" 1
--- color r
---   | r < 0.5 = hexa "fff3fb" 1 
---   | r < 1 = hexa "a5638f" 1
---   | otherwise = hexa "ffd2ea" 1
-
-
 test :: IO ()
-test = do 
-  let t' = ngon 3 (0 :& 0) 100
-  let t = t'
-
-  outputSketch (100, 100, 10, False) $ do
-    -- fillScreen (hexa "FFEBD1") 1
-    let color = black 1
-    fillScreen color
+test = outputSketch (100, 100, 10, False) $ do
     (w, h) <- getSize @Double
+    let bg = hsva 0 0 0.12 1
     let c = w/2 :& h/2
-    let s = circle c 40
+    fillScreen bg
+
+    pts <- replicateM 300000 $ randomPt (0, 100) (0, 100)
 
     cairo $ do
-      setLineWidth 0.5
-      white 1
-      draw s
-      fill
+      let segs = segments $
+                ((18 :& 35) ~~ (21 :& 31)   ~~ (23 :& 29) ~~
+                 (25 :& 28) ~~ (27 :& 27.5) ~~ (29 :& 28) ~~
+                 (33 :& 30) ~~ (35 :& 30))  ~~ (85 :& 30)
+      let lines = segs ++ [Line (15 :& y) (85 :& y) | y <- [10, 20..90], y /= 30]
+      -- crappy <- mapM deteriorate lines
 
-    -- pts <- replicateM 5000 (randomInside s)
-    cairo color
-      -- mapM_ (\pt -> draw (circle pt 0)) pts
-    replicateM_ 500 (randomWalk s)
-    cairo fill
-
+      white 0.03
+      mapM_ (\pt -> draw (circle pt 0.1) *> fill) pts
+      setLineWidth 0.8
+      setLineJoin LineJoinBevel
+      hsva 0 0 0.8 1
+      mapM_ (\l -> draw l *> stroke) lines
 
 randomWalk :: Circle -> Generate ()
 randomWalk s = do
