@@ -37,7 +37,7 @@ englishVermillion = hsva 355 0.68 0.84
 
 renderSketch :: Generate ()
 renderSketch = do
-  fillScreen eggshell 1
+  fillScreen $ eggshell 1
 
   cairo $ setLineWidth 0.15
 

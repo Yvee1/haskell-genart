@@ -22,6 +22,8 @@ import Data.RVar
 class Draw a where
   draw :: a -> Render ()
 
+-- class Draw
+
 class Shape s where
   randomInside :: s -> Generate Pt
   boundingBox :: s -> Polygon
@@ -61,7 +63,7 @@ infix 5 :&
 pattern (:&) x y = P (V2 x y) :: Pt
 
 instance Draw Pt where
-  draw (x :& y) = arc x y 1 0 (2 * pi)
+  draw (x :& y) = arc x y 0.5 0 (2 * pi)
 
 instance Trail Pt where
   pointsOn p = [p]
@@ -109,6 +111,34 @@ randomVec (x1, x2) (y1, y2) =
   do x <- x1 <=> x2
      y <- y1 <=> y2
      pure $ V2 x y
+
+-------------------------------
+-- Grid
+
+newtype Grid a = Grid [[(Pt, a)]]
+  deriving Show
+
+instance Trail (Grid a) where
+  pointsOn (Grid g) = concatMap (map fst) g
+
+instance Draw (Grid a) where
+  draw = drawPoints . pointsOn
+  
+drawPoints :: [Pt] -> Render ()
+drawPoints pts = for_ pts $ \pt@(x :& y) -> moveTo (x+0.5) y *> draw pt
+
+valuesOn :: Grid a -> [a]
+valuesOn (Grid g) = concatMap (map snd) g
+
+row :: Int -> Grid a -> [(Pt, a)]
+row n (Grid g) = g !! n
+
+column :: Int -> Grid a -> [(Pt, a)]
+column n (Grid g) = map (!! n) g
+
+makeGrid :: [Double] -> [Double] -> (Double -> Double -> a) -> Grid a
+makeGrid xs ys f = Grid g
+  where g = [[(x :& y, f x y) | x <- xs] | y <- ys]
 
 -------------------------------
 -- Polygon

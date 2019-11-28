@@ -43,8 +43,8 @@ grid = outputSketch (100, 100, 10, False) $ do
 
     sequence_ [draw (square (x :& y) 3) *> fill | x <- [5, 10..95], y <- [5, 10..95]]
   
-test :: IO ()
-test = outputSketch (100, 100, 10, False) $ do
+perron :: IO ()
+perron = outputSketch (100, 100, 10, False) $ do
     (w, h) <- getSize @Double
     let bg = hsva 0 0 0.12 1
     let c = w/2 :& h/2
@@ -66,6 +66,31 @@ test = outputSketch (100, 100, 10, False) $ do
       setLineJoin LineJoinBevel
       hsva 0 0 0.8 1
       mapM_ (\l -> draw l *> stroke) lines
+
+test :: IO ()
+test = outputSketch (100, 100, 10, False) $ do
+  (w, h) <- getSize @Double
+  let bg = white
+  let c = w/2 :& h/2
+  fillScreen (bg 1)
+
+  cairo $ do
+    let a = makeGrid [5, 10..95] [5, 10..95] (const (const (V2 4 6)))
+    black 1
+    setLineWidth 0.2
+    draw a
+    fill
+
+    -- drawPoints [(20 :& 20), (80 :& 80)]
+    -- draw $ 50 :& 50
+    -- moveTo 81 50
+    -- draw $ 80 :& 50
+    -- stroke
+
+    -- let l = (20 :& 20) ~~ (80 :& 80)
+    -- setDash [2, 4, 6, 5] 0
+    -- draw l
+    -- stroke
 
 randomWalk :: Circle -> Generate ()
 randomWalk s = do
