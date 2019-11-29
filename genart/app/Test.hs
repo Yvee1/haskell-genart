@@ -67,11 +67,14 @@ perron = outputSketch (100, 100, 10, False) $ do
       hsva 0 0 0.8 1
       mapM_ (\l -> draw l *> stroke) lines
 
-circular :: VectorField
-circular (x :& y) = y ^& x
+field :: VectorField
+-- field v@(x' :& y') = sin x ^& sin (min x (exp x) - min (sin (norm v)) (max x y))
+field (x' :& y') = sin x ^& sin (min x (exp x))
+  where x = x' / 10
+        y = y' / 10
 
 test :: IO ()
-test = outputSketch (100, 100, 10, False) $ do
+test = outputSketch (100, 100, 15, False) $ do
   (w, h) <- getSize @Double
   let bg = hsva 0 0 0.9
 
@@ -81,36 +84,10 @@ test = outputSketch (100, 100, 10, False) $ do
   cairo $ do
     translate (getX c) (getY c)
     setLineWidth 0.2
-    scale 1.3 1.3
+    black 1
 
-    let a = makeGrid [-13 .. 13] ([-30, -23 .. -17] ++ [17, 24 .. 30]) circular
-    hsva 120 1 0.5 0.4
-
+    let a = makeGrid [-40..40] [-40..40] field
     draw a
-
-    save
-    rotate (pi/2)
-    draw a
-    restore
-
-    let b = makeGrid [-7..7] [0] circular
-    hsva 0 1 1 1
-    save
-    rotate (pi/4)
-    draw b
-    restore
-    rotate (-pi/4)
-    draw b
-    -- drawPoints [(20 :& 20), (80 :& 80)]
-    -- draw $ 50 :& 50
-    -- moveTo 81 50
-    -- draw $ 80 :& 50
-    -- stroke
-
-    -- let l = (20 :& 20) ~~ (80 :& 80)
-    -- setDash [2, 4, 6, 5] 0
-    -- draw l
-    -- stroke
 
 randomWalk :: Circle -> Generate ()
 randomWalk s = do

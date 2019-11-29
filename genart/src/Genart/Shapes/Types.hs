@@ -58,12 +58,13 @@ class PtList t where
 -- Point
 
 type Pt = Point V2 Double
+ptSize = 0.5
 
 infix 5 :&
 pattern (:&) x y = P (V2 x y) :: Pt
 
 instance Draw Pt where
-  draw (x :& y) = arc x y 0.5 0 (2 * pi)
+  draw (x :& y) = arc x y ptSize 0 (2 * pi)
 
 instance Trail Pt where
   pointsOn p = [p]
@@ -83,6 +84,12 @@ randomPt :: (MonadRandom m) => (Double, Double) -> (Double, Double) -> m Pt
 randomPt xrange yrange =
   do vec <- randomVec xrange yrange
      return (P vec)
+
+instance Draw [Pt] where
+  draw = drawPts
+    
+drawPts :: [Pt] -> Render ()
+drawPts pts = for_ pts $ \pt@(x :& y) -> moveTo (x+ptSize) y *> draw pt
 
 -------------------------------
 -- Vector
@@ -113,6 +120,38 @@ randomVec (x1, x2) (y1, y2) =
      y <- y1 <=> y2
      pure $ V2 x y
 
+type BoundVec = (Pt, Vec)
+(==>) :: Pt -> Pt -> BoundVec
+pt1 ==> pt2 = (pt1, pt2 .-. pt1)
+
+arrowAngle = pi/8
+arrowRatio = 0.4 :: Double
+
+clamp :: (Ord a) => a -> a -> a -> a
+clamp mn mx = max mn . min mx
+
+instance Draw BoundVec where
+  draw (sx :& sy, v@(V2 dx dy)) = do
+    let a = atan2 dx dy - (pi/2)
+        -- len = clamp 1 10 (arrowRatio * norm v)
+        len = arrowRatio * norm v
+        fx = sx + dx
+        fy = sy + dy
+        x1 = fx - len * cos (a - arrowAngle)
+        y1 = fy + len * sin (a - arrowAngle)
+        x2 = fx - len * cos (a + arrowAngle)
+        y2 = fy + len * sin (a + arrowAngle)
+    
+    moveTo sx sy
+    lineTo fx fy
+    stroke
+    moveTo fx fy
+    lineTo x1 y1
+    stroke
+    moveTo fx fy
+    lineTo x2 y2
+    stroke
+
 -------------------------------
 -- Grid
 
@@ -125,21 +164,22 @@ instance Trail (Grid a) where
 -- instance Draw (Grid a) where
   -- draw = drawPts . pointsOn
 
+-- instance Draw (Grid Vec) where
+  -- draw (Grid g) = drawPtVecs (concat g)
+
 instance Draw (Grid Vec) where
   draw (Grid g) = drawPtVecs (concat g)
 
+
 drawPtVecs :: [(Pt, Vec)] -> Render ()
-drawPtVecs pairs = for_ pairs drawPtVec
+drawPtVecs pairs = for_ pairs draw
 
-drawPtVec :: (Pt, Vec) -> Render ()
-drawPtVec (x :& y, V2 dx dy)= do
-  moveTo (x - dx/2) (y - dy/2)
-  lineTo (x + dx/2) (y + dy/2)
-  stroke
+-- drawPtVec :: (Pt, Vec) -> Render ()
+-- drawPtVec (x :& y, V2 dx dy)= do
+--   moveTo (x - dx/2) (y - dy/2)
+--   lineTo (x + dx/2) (y + dy/2)
+--   stroke
   
-drawPts :: [Pt] -> Render ()
-drawPts pts = for_ pts $ \pt@(x :& y) -> moveTo (x+0.5) y *> draw pt
-
 valuesOn :: Grid a -> [a]
 valuesOn (Grid g) = concatMap (map snd) g
 
