@@ -67,20 +67,40 @@ perron = outputSketch (100, 100, 10, False) $ do
       hsva 0 0 0.8 1
       mapM_ (\l -> draw l *> stroke) lines
 
+circular :: VectorField
+circular (x :& y) = y ^& x
+
 test :: IO ()
 test = outputSketch (100, 100, 10, False) $ do
   (w, h) <- getSize @Double
-  let bg = white
+  let bg = hsva 0 0 0.9
+
   let c = w/2 :& h/2
   fillScreen (bg 1)
 
   cairo $ do
-    let a = makeGrid [5, 10..95] [5, 10..95] (const (const (V2 4 6)))
-    black 1
+    translate (getX c) (getY c)
     setLineWidth 0.2
-    draw a
-    fill
+    scale 1.3 1.3
 
+    let a = makeGrid [-13 .. 13] ([-30, -23 .. -17] ++ [17, 24 .. 30]) circular
+    hsva 120 1 0.5 0.4
+
+    draw a
+
+    save
+    rotate (pi/2)
+    draw a
+    restore
+
+    let b = makeGrid [-7..7] [0] circular
+    hsva 0 1 1 1
+    save
+    rotate (pi/4)
+    draw b
+    restore
+    rotate (-pi/4)
+    draw b
     -- drawPoints [(20 :& 20), (80 :& 80)]
     -- draw $ 50 :& 50
     -- moveTo 81 50

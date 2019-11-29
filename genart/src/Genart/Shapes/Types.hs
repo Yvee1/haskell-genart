@@ -8,7 +8,7 @@ module Genart.Shapes.Types (
   module Linear.Metric
 ) where
 
-import Genart.CairoHelpers
+import Genart.CairoHelpers hiding (x, y)
 import Genart.Random
 import Linear.Affine
 import Linear.Metric
@@ -88,6 +88,7 @@ randomPt xrange yrange =
 -- Vector
 
 type Vec = V2 Double
+type VectorField = Pt -> Vec
 
 instance Draw Vec where
   draw v = polyline [0 :& 0, P v]
@@ -121,11 +122,23 @@ newtype Grid a = Grid [[(Pt, a)]]
 instance Trail (Grid a) where
   pointsOn (Grid g) = concatMap (map fst) g
 
-instance Draw (Grid a) where
-  draw = drawPoints . pointsOn
+-- instance Draw (Grid a) where
+  -- draw = drawPts . pointsOn
+
+instance Draw (Grid Vec) where
+  draw (Grid g) = drawPtVecs (concat g)
+
+drawPtVecs :: [(Pt, Vec)] -> Render ()
+drawPtVecs pairs = for_ pairs drawPtVec
+
+drawPtVec :: (Pt, Vec) -> Render ()
+drawPtVec (x :& y, V2 dx dy)= do
+  moveTo (x - dx/2) (y - dy/2)
+  lineTo (x + dx/2) (y + dy/2)
+  stroke
   
-drawPoints :: [Pt] -> Render ()
-drawPoints pts = for_ pts $ \pt@(x :& y) -> moveTo (x+0.5) y *> draw pt
+drawPts :: [Pt] -> Render ()
+drawPts pts = for_ pts $ \pt@(x :& y) -> moveTo (x+0.5) y *> draw pt
 
 valuesOn :: Grid a -> [a]
 valuesOn (Grid g) = concatMap (map snd) g
@@ -136,9 +149,9 @@ row n (Grid g) = g !! n
 column :: Int -> Grid a -> [(Pt, a)]
 column n (Grid g) = map (!! n) g
 
-makeGrid :: [Double] -> [Double] -> (Double -> Double -> a) -> Grid a
+makeGrid :: [Double] -> [Double] -> (Pt -> a) -> Grid a
 makeGrid xs ys f = Grid g
-  where g = [[(x :& y, f x y) | x <- xs] | y <- ys]
+  where g = [[(pt, f pt) | x <- xs, let pt = x :& y] | y <- ys]
 
 -------------------------------
 -- Polygon
