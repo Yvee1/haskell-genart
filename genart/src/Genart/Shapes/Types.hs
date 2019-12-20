@@ -22,7 +22,9 @@ import Data.RVar
 class Draw a where
   draw :: a -> Render ()
 
--- class Draw
+class DrawGroup t where
+  drawStroke :: t -> Render ()
+  drawFill   :: t -> Render ()
 
 class Shape s where
   randomInside :: s -> Generate Pt
@@ -58,7 +60,7 @@ class PtList t where
 -- Point
 
 type Pt = Point V2 Double
-ptSize = 0.5
+ptSize = 0.2
 
 infix 5 :&
 pattern (:&) x y = P (V2 x y) :: Pt
@@ -89,7 +91,7 @@ instance Draw [Pt] where
   draw = drawPts
     
 drawPts :: [Pt] -> Render ()
-drawPts pts = for_ pts $ \pt@(x :& y) -> moveTo (x+ptSize) y *> draw pt
+drawPts pts = for_ pts $ \pt@(x :& y) -> moveTo (x+ptSize) y *> draw pt *> fill
 
 -------------------------------
 -- Vector
@@ -134,7 +136,7 @@ instance Draw BoundVec where
   draw (sx :& sy, v@(V2 dx dy)) = do
     let a = atan2 dx dy - (pi/2)
         -- len = clamp 1 10 (arrowRatio * norm v)
-        len = arrowRatio * norm v
+        len = min (arrowRatio * norm v) 10
         fx = sx + dx
         fy = sy + dy
         x1 = fx - len * cos (a - arrowAngle)
@@ -142,6 +144,7 @@ instance Draw BoundVec where
         x2 = fx - len * cos (a + arrowAngle)
         y2 = fy + len * sin (a + arrowAngle)
     
+    -- hsva (norm v * 4) 1 1 1
     moveTo sx sy
     lineTo fx fy
     stroke
@@ -161,18 +164,22 @@ newtype Grid a = Grid [[(Pt, a)]]
 instance Trail (Grid a) where
   pointsOn (Grid g) = concatMap (map fst) g
 
--- instance Draw (Grid a) where
-  -- draw = drawPts . pointsOn
+instance DrawGroup (Grid ()) where
+  drawFill g = (drawPts . pointsOn) g *> fill
+  drawFill g = (drawPts . pointsOn) g *> stroke
+
+instance DrawGroup t => Grid t where
+  draw (Grid g) = for_ (concat g) draw
 
 -- instance Draw (Grid Vec) where
-  -- draw (Grid g) = drawPtVecs (concat g)
-
-instance Draw (Grid Vec) where
-  draw (Grid g) = drawPtVecs (concat g)
+--   draw (Grid g) = drawPtVecs (concat g)
 
 
 drawPtVecs :: [(Pt, Vec)] -> Render ()
 drawPtVecs pairs = for_ pairs draw
+
+drawVectorField :: Grid Vec -> Render ()
+drawVectorField (Grid g) = draw
 
 -- drawPtVec :: (Pt, Vec) -> Render ()
 -- drawPtVec (x :& y, V2 dx dy)= do

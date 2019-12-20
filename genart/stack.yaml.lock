@@ -25,6 +25,20 @@ packages:
       sha256: df6fdd3aaf8b9d3dd420b5c5906751d7399f1999607b396141d1493c76472e1b
   original:
     hackage: gtk2hs-buildtools-0.13.5.4@sha256:0f18b0103fa7a3cbc28edc6a97bdaf08e1f9bd273ef26d2ad498630ec6d0ac9c,5288
+- completed:
+    hackage: optics-0.2@sha256:813ef6cc4d2e2b5ee00435831031f38917ba01d1e56dcb62dc18cd0315a9ccb7,6296
+    pantry-tree:
+      size: 1003
+      sha256: 8a74dbcd983fcc96b7b6c5c9fc6da7240dd2e5bdab7caa4927b8287a4cbe5c0f
+  original:
+    hackage: optics-0.2@sha256:813ef6cc4d2e2b5ee00435831031f38917ba01d1e56dcb62dc18cd0315a9ccb7,6296
+- completed:
+    hackage: optics-th-0.2@sha256:b4f6c5a3f134c697837190ed6da969dd284aefe79e43c3ef793093b607bb83b9,1929
+    pantry-tree:
+      size: 653
+      sha256: f6b5caed956d3761b35769ac518d3f0f407449dafe33154992386f02d9489bad
+  original:
+    hackage: optics-th-0.2@sha256:b4f6c5a3f134c697837190ed6da969dd284aefe79e43c3ef793093b607bb83b9,1929
 snapshots:
 - completed:
     size: 545658

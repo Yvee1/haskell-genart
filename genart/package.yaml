@@ -34,6 +34,7 @@ dependencies:
 - random-fu
 - split
 - directory
+- optics
 
 library:
   source-dirs: src

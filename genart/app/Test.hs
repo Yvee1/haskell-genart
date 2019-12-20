@@ -67,16 +67,22 @@ perron = outputSketch (100, 100, 10, False) $ do
       hsva 0 0 0.8 1
       mapM_ (\l -> draw l *> stroke) lines
 
-field :: VectorField
+fabric :: VectorField
 -- field v@(x' :& y') = sin x ^& sin (min x (exp x) - min (sin (norm v)) (max x y))
-field (x' :& y') = sin x ^& sin (min x (exp x))
+fabric (x' :& y') = sin x ^& sin (min x (exp x))
   where x = x' / 10
         y = y' / 10
 
+electric :: Pt -> Double -> VectorField
+electric pos charge pt = if d /= 0 then charge *^ v ^/ (d ** 3) else 0 ^& 0
+  where v = pt .-. pos
+        d = norm v
+
 test :: IO ()
-test = outputSketch (100, 100, 15, False) $ do
+test = outputSketch (100, 100, 10, False) $ do
   (w, h) <- getSize @Double
   let bg = hsva 0 0 0.9
+  -- let bg = black
 
   let c = w/2 :& h/2
   fillScreen (bg 1)
@@ -86,8 +92,17 @@ test = outputSketch (100, 100, 15, False) $ do
     setLineWidth 0.2
     black 1
 
-    let a = makeGrid [-40..40] [-40..40] field
+    let field pt = electric (-20 :& 0) 3 pt + electric (40 :& 20) 10 pt
+    let a = makeGrid [-50..50] [-50..50] field
     draw a
+
+    
+    let b = makeGrid [-50..50] [-50..50] (const ())
+    draw b
+    -- draw $ (0 :& 0) ==> (4 :& 5)
+    -- liftIO $ print a
+    -- draw a
+    -- stroke
 
 randomWalk :: Circle -> Generate ()
 randomWalk s = do
