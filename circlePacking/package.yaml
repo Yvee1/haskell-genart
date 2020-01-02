@@ -1,6 +1,6 @@
-name:                genart
-version:             0.1.0.0
-github:              "Yvee1/haskell-genart/genart"
+name:                circlePacking
+version:             1.0.0
+github:              "Yvee1/circlePacking"
 license:             BSD3
 author:              "Steven van den Broek"
 maintainer:          "stevenvdb@live.nl"
@@ -8,7 +8,6 @@ copyright:           "2019 Steven van den Broek"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,30 +16,17 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/Yvee1/haskell-genart/genart#readme>
+description:         Please see the README on GitHub at <https://github.com/Yvee1/circlePacking#readme>
 
 dependencies:
 - base >= 4.7 && < 5
-- cairo
-- colour
-- hsnoise
-- linear
-- MonadRandom
-- mtl
-- time
-- transformers
-- rvar
-- random-source
-- random-fu
-- split
-- directory
-# - optics
+- genart
 
 library:
   source-dirs: src
 
 executables:
-  genart-exe:
+  circlePacking-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -48,15 +34,15 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - genart
+    - circlePacking
 
-tests:
-  genart-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - genart
+# tests:
+#   circlePacking-test:
+#     main:                Spec.hs
+#     source-dirs:         test
+#     ghc-options:
+#     - -threaded
+#     - -rtsopts
+#     - -with-rtsopts=-N
+#     dependencies:
+#     - circlePacking

@@ -1,0 +1,85 @@
+{-# START_FILE package.yaml #-}
+name:                {{name}}
+version:             1.0.0
+github:              "{{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}"
+license:             BSD3
+author:              "{{author-name}}{{^author-name}}Author name here{{/author-name}}"
+maintainer:          "{{author-email}}{{^author-email}}example@example.com{{/author-email}}"
+copyright:           "{{copyright}}{{^copyright}}{{year}}{{^year}}2019{{/year}} {{author-name}}{{^author-name}}Author name here{{/author-name}}{{/copyright}}"
+
+extra-source-files:
+- README.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            {{category}}{{^category}}Web{{/category}}
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/{{github-username}}{{^github-username}}githubuser{{/github-username}}/{{name}}#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- genart
+
+library:
+  source-dirs: src
+
+executables:
+  {{name}}-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - {{name}}
+
+{-# START_FILE Setup.hs #-}
+import Distribution.Simple
+main = defaultMain
+
+{-# START_FILE src/Lib.hs #-}
+module Lib where
+
+{-# START_FILE app/Main.hs #-}
+{-# LANGUAGE TypeApplications #-}
+
+module Main where
+
+import Lib
+import Genart
+main :: IO ()
+main = outputSketch (100, 100, 10, False) $ do
+  (w, h) <- getSize @Double
+  let c = w/2 :& h/2
+  let bg = white 1
+  fillScreen bg
+
+  cairo $ do
+    black 1
+    draw $ circle c 25
+    fill
+
+{-# START_FILE README.md #-}
+# {{name}}
+
+{-# START_FILE .gitignore #-}
+.stack-work/
+{{name}}.cabal
+images/
+*~
+
+{-# START_FILE stack.yaml #-}
+resolver: lts-14.12
+
+packages:
+- .
+
+extra-deps:
+  - ../genart
+  - cairo-0.13.6.1@sha256:6ec483dc48865d55e903aacb8740aee2d4831b8c0f34eebbf7a323edafdabb37,4075
+  - hsnoise-0.0.2@sha256:ebde231014d8c1f4c44e9760742824af87645cdff1f223c2efe16d79bc418587,1306
+  - gtk2hs-buildtools-0.13.5.4@sha256:0f18b0103fa7a3cbc28edc6a97bdaf08e1f9bd273ef26d2ad498630ec6d0ac9c,5288

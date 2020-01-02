@@ -22,9 +22,9 @@ import Data.RVar
 class Draw a where
   draw :: a -> Render ()
 
-class DrawGroup t where
-  drawStroke :: t -> Render ()
-  drawFill   :: t -> Render ()
+-- class DrawGroup t where
+  -- drawStroke :: t -> Render ()
+  -- drawFill   :: t -> Render ()
 
 class Shape s where
   randomInside :: s -> Generate Pt
@@ -164,12 +164,12 @@ newtype Grid a = Grid [[(Pt, a)]]
 instance Trail (Grid a) where
   pointsOn (Grid g) = concatMap (map fst) g
 
-instance DrawGroup (Grid ()) where
-  drawFill g = (drawPts . pointsOn) g *> fill
-  drawFill g = (drawPts . pointsOn) g *> stroke
+-- instance DrawGroup (Grid ()) where
+  -- drawFill g = (drawPts . pointsOn) g *> fill
+  -- drawFill g = (drawPts . pointsOn) g *> stroke
 
-instance DrawGroup t => Grid t where
-  draw (Grid g) = for_ (concat g) draw
+-- instance DrawGroup t => Grid t where
+  -- draw (Grid g) = for_ (concat g) draw
 
 -- instance Draw (Grid Vec) where
 --   draw (Grid g) = drawPtVecs (concat g)
@@ -178,8 +178,8 @@ instance DrawGroup t => Grid t where
 drawPtVecs :: [(Pt, Vec)] -> Render ()
 drawPtVecs pairs = for_ pairs draw
 
-drawVectorField :: Grid Vec -> Render ()
-drawVectorField (Grid g) = draw
+-- drawVectorField :: Grid Vec -> Render ()
+-- drawVectorField (Grid g) = draw
 
 -- drawPtVec :: (Pt, Vec) -> Render ()
 -- drawPtVec (x :& y, V2 dx dy)= do

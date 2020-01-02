@@ -78,27 +78,58 @@ electric pos charge pt = if d /= 0 then charge *^ v ^/ (d ** 3) else 0 ^& 0
   where v = pt .-. pos
         d = norm v
 
+
+drawPointsGrid :: Double -> Double -> Double -> Render ()
+drawPointsGrid w h s = do
+  let g1 = makeGrid [0..w] [0, 2..h] (const ())
+  let g2 = makeGrid [0.5, 1.5..w] [1, 3..h] (const ())
+  mapM_ (\pt -> draw (circle pt s) *> fill) (pointsOn g1 ++ pointsOn g2)
+
 test :: IO ()
 test = outputSketch (100, 100, 10, False) $ do
   (w, h) <- getSize @Double
-  let bg = hsva 0 0 0.9
+  let beige = hsva 0 0 0.9
+  let bg = beige
   -- let bg = black
 
   let c = w/2 :& h/2
   fillScreen (bg 1)
+  let p = square' c 40
+  let ell = circle 0 20
 
   cairo $ do
-    translate (getX c) (getY c)
+    -- translate (getX c) (getY c)
     setLineWidth 0.2
     black 1
 
-    let field pt = electric (-20 :& 0) 3 pt + electric (40 :& 20) 10 pt
-    let a = makeGrid [-50..50] [-50..50] field
-    draw a
+    pushGroup
+  -- fillScreen (white 1)
+  cairo $ do
+    drawPointsGrid w h 0.35
+    popGroupToSource
 
-    
-    let b = makeGrid [-50..50] [-50..50] (const ())
-    draw b
+    save
+    translate (getX c) (getY c)
+    -- rotate (pi/2)
+    scale 1.3 1.8
+    draw ell
+    restore
+    fill
+    -- save
+    -- translate (getX c) (getY c)
+    -- rotate (pi/2)
+    -- scale 1.3 1.8
+    -- draw ell
+    -- restore
+    -- fill
+    pushGroup
+  fillScreen (black 1)
+  cairo $ do
+    -- beige 1
+    drawPointsGrid w h 0.25
+    popGroupToSource
+    mapM_ (\pt -> draw (circle pt 6) *> fill) (pointsOn p)
+
     -- draw $ (0 :& 0) ==> (4 :& 5)
     -- liftIO $ print a
     -- draw a
