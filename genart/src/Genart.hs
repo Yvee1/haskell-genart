@@ -1,13 +1,9 @@
 module Genart (
-    module Genart.CairoHelpers,
-    module Genart.Noise,
-    module Genart.Shapes,
-    module Genart.Color,
-    module Genart.Random
+    module X
 ) where
 
-import Genart.CairoHelpers
-import Genart.Noise
-import Genart.Shapes
-import Genart.Color
-import Genart.Random
+import Genart.CairoHelpers as X
+import Genart.Noise        as X
+import Genart.Shapes       as X
+import Genart.Color        as X
+import Genart.Random       as X

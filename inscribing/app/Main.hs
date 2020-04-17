@@ -2,7 +2,8 @@
 
 module Main where
 
-import Genart
+import Genart (hsva, ngon, incircle, inradius, fillScreen)
+import ChaosBox
 import Control.Monad
 
 eggshell :: Double -> Render ()
@@ -11,7 +12,7 @@ eggshell = hsva 71 0.13 0.96
 darkGunmetal :: Double -> Render ()
 darkGunmetal = hsva 170 0.30 0.16
 
-once :: Pt -> Double -> Int -> Render Double
+once :: P2 -> Double -> Int -> Render Double
 once c r n =
   do
     let p = ngon n c r
@@ -40,15 +41,15 @@ once' c r n =
     return $ inradius p
 
 renderSketch :: Generate ()
-renderSketch = do
-  fillScreen darkGunmetal 1
+renderSketch = eventLoop $ do
+  fillScreen $ darkGunmetal 1
   (w, h) <- getSize @Double
-  let c = w/2 .& h/2
+  let c = P2 (w/2) (h/2)
 
   cairo $ do 
     setLineWidth 0.35
     foldM_ (once c) 40 [40, 39..3]
     -- foldM_ (once' c) 40 [3..50]
-
+  
 main :: IO ()
-main = outputSketch (100, 100, 10) renderSketch
+main = runChaosBoxWith (\o -> o { optWidth = 100, optHeight = 100, optScale = 10 }) renderSketch

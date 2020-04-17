@@ -36,9 +36,10 @@ packages:
 #
 extra-deps:
   - ../genart
-  - cairo-0.13.6.1@sha256:6ec483dc48865d55e903aacb8740aee2d4831b8c0f34eebbf7a323edafdabb37,4075
   - hsnoise-0.0.2@sha256:ebde231014d8c1f4c44e9760742824af87645cdff1f223c2efe16d79bc418587,1306
-  - gtk2hs-buildtools-0.13.5.4@sha256:0f18b0103fa7a3cbc28edc6a97bdaf08e1f9bd273ef26d2ad498630ec6d0ac9c,5288
+  - gi-cairo-render-0.0.1@sha256:ff2ccc309c021c2c023fa0d380375ef36cff2df93e0c78ed733f052dd1aa9782,3502
+  - github: 5outh/chaosbox
+    commit: 93093054cfdf2af0f5d72546aada2c5d474b8c27
 
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git

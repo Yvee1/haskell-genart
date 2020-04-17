@@ -1,13 +1,9 @@
 module Genart.Shapes (
-  module Genart.Shapes.Types,
-  module Genart.Shapes.Polygon,
-  module Genart.Shapes.Circle,
-  module Genart.Shapes.Line,
-  module Genart.Shapes.Curve
+  module X
 ) where
 
-import Genart.Shapes.Types
-import Genart.Shapes.Polygon
-import Genart.Shapes.Circle
-import Genart.Shapes.Line
-import Genart.Shapes.Curve
+import Genart.Shapes.Types   as X
+import Genart.Shapes.Polygon as X
+import Genart.Shapes.Circle  as X
+import Genart.Shapes.Line    as X
+import Genart.Shapes.Curve   as X
