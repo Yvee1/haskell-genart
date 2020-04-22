@@ -7,6 +7,7 @@ import Control.Monad
 import Data.List (nub)
 import Data.Random (uniform, randomElement)
 import Data.RVar
+import Control.Monad.IO.Class (liftIO)
 
 eggshell :: Double -> Render ()
 eggshell = hsva 71 0.13 0.96
@@ -179,3 +180,10 @@ kovach = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20
     cairo $ do
       draw quad
       color 1 *> strokeOrFill
+
+
+svgTest = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20 }) $ eventLoop $ do
+  svg <- liftIO $ loadSvg "flame.svg"
+
+  fillScreen $ black 1
+  cairo $ draw svg

@@ -32,6 +32,20 @@ packages:
       sha256: 115e3a2c00599e78138d9d245cdaf292b7c0b7d9555dc26d0d8e89ff1f69f18d
   original:
     url: https://github.com/5outh/chaosbox/archive/93093054cfdf2af0f5d72546aada2c5d474b8c27.tar.gz
+- completed:
+    size: 107627
+    url: https://github.com/Yvee1/hs-librsvg/archive/d78c17a45a00c2686853247e20a692b24a7915fc.tar.gz
+    cabal-file:
+      size: 1218
+      sha256: 2bb014961aad79db4db569eafd340de8104f45a871abc9b007a88f849be856a3
+    name: hs-librsvg
+    version: 0.1.0.0
+    sha256: abd37dead0e1c5813227154db9c45f6ba530ce928289a979313772a448b64307
+    pantry-tree:
+      size: 567
+      sha256: 234ef2802a82ffe3e683860551ce4374875f48ac92e98820b546bb5af8843597
+  original:
+    url: https://github.com/Yvee1/hs-librsvg/archive/d78c17a45a00c2686853247e20a692b24a7915fc.tar.gz
 snapshots:
 - completed:
     size: 545658

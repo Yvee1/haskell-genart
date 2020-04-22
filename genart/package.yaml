@@ -35,6 +35,8 @@ dependencies:
 - directory
 - chaosbox
 - gi-cairo-render
+- bytestring
+- hs-librsvg
 # - optics
 
 library:

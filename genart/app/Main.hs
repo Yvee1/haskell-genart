@@ -3,4 +3,4 @@ module Main where
 import Sketches
 
 main :: IO ()
-main = test
+main = svgTest
