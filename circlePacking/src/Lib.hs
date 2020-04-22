@@ -5,12 +5,14 @@ import Genart
 
 type GrowingCircle = (Circle, Bool)
 
-growList :: [Circle] -> Generate [GrowingCircle]
-growList (c : cs) = do
-  let newC = increaseSize c 0.1
-  inside <- insideScreen newC
-  allowed <- if inside then c `checkOverlapping` cs else False
-  
+-- growList :: [Circle] -> Generate [GrowingCircle]
+-- growList (c : cs) = do
+--   let newC = increaseSize c 0.1
+--   inside <- insideScreen newC
+--   let allowed = inside && c `checkOverlapping` cs
+--   if allowed then return ((newC, True) : growList cs) else return ((c, False) : growList cs)
+
+-- growList' :: Circle -> [Circle] -> 
 
 grow :: Circle -> Generate GrowingCircle
 grow c = do
