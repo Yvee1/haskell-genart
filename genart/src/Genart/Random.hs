@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleContexts  #-}
 module Genart.Random where
 
-import Genart.CairoHelpers
 import Data.Random
 import Data.RVar
 

@@ -1,6 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances, PatternSynonyms, ScopedTypeVariables, DeriveFoldable, DeriveFunctor, DeriveTraversable, DerivingStrategies, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
 
 module Genart.Shapes.Types (
   module Genart.Shapes.Types,
@@ -21,20 +19,28 @@ import ChaosBox (Draw, draw)
 -------------------------------
 -- Type classes
 
-class Shape s where
-  randomInside :: s -> Generate Pt
-  boundingBox :: s -> Polygon
-
 class Trail t where
   pointsOn :: t -> [Pt]
 
 class PtLike p where
+  {-# MINIMAL getX, getY, setX, setY #-}
+
   getX :: p -> Double
   getY :: p -> Double
+  setX :: p -> Double -> p
+  setY :: p -> Double -> p
+
+  getPt :: p -> Pt
+  getPt ptLike = getX ptLike :& getY ptLike
+
+  setPt :: p -> Pt -> p
+  setPt ptLike (x :& y) = setX (setY ptLike y) x
 
 instance PtLike (Double, Double) where
-  getX (x, _) = x
-  getY (_, y) = y
+  getX (x, _)    = x
+  getY (_, y)    = y
+  setX (x, y) x' = (x', y)
+  setY (x, y) y' = (x, y')
 
 -- instance PtLike (Integer, Integer) where
 --   getX (x, _) = fromIntegral x
@@ -47,9 +53,19 @@ class Smooth a where
   chaikin a = iterate chaikinStep a !! 5
 
 class PtList t where
-  (#) :: ([Pt] -> [Pt]) -> t -> t
-  (##) :: ([Pt] -> a) -> t -> a
-  (%%) :: (t -> a) -> [Pt] -> a
+  (#) :: ([a] -> [a]) -> t a -> t a
+  (##) :: ([a] -> b) -> t a -> b
+  (%%) :: (t a -> b) -> [a] -> b
+
+----------------- from chaosbox ---------------------
+-- | Class of objects that can be queried for points
+class Boundary a where
+  containsPoint :: a -> Pt -> Bool
+
+class Intersects a b where
+  intersectionPoints :: a -> b -> [Pt]
+  intersects :: a -> b -> Bool
+  intersects a b = null (intersectionPoints a b)
 
 -------------------------------
 -- Point
@@ -67,8 +83,10 @@ instance Trail Pt where
   pointsOn p = [p]
 
 instance PtLike Pt where
-  getX (x :& _) = x
-  getY (_ :& y) = y
+  getX (x :& _)    = x
+  getY (_ :& y)    = y
+  setX (x :& y) x' = x' :& y
+  setY (x :& y) y' = x  :& y'
 
 point :: Double -> Double -> Pt
 point x y = x :& y
@@ -98,8 +116,10 @@ instance Draw Vec where
   draw v = polyline [0 :& 0, P v]
 
 instance PtLike Vec where
-  getX (V2 x _) = x
-  getY (V2 _ y) = y
+  getX (V2 x _)    = x
+  getY (V2 _ y)    = y
+  setX (V2 x y) x' = V2 x' y
+  setY (V2 x y) y' = V2 x  y'
 
 infix 5 ^&
 (^&) :: Double -> Double -> Vec
@@ -198,8 +218,15 @@ makeGrid xs ys f = Grid g
 -------------------------------
 -- Polygon
 
-newtype Polygon = Polygon [Pt]
-  deriving (Eq, Show)
+newtype PolygonOf a = PolygonOf [a]
+  deriving stock (Show, Eq, Ord, Functor, Foldable, Traversable)
+  deriving newtype (Applicative, Monad)
+
+type Polygon = PolygonOf Pt
+
+pattern Polygon :: [Pt] -> Polygon
+pattern Polygon pts = PolygonOf pts
+{-# COMPLETE Polygon #-}
 
 instance Draw Polygon where
   draw (Polygon pts) = renderClosedPath pts
@@ -210,12 +237,26 @@ instance Trail Polygon where
 instance Smooth Polygon where
   chaikinStep (Polygon pts) = Polygon (generalChaikinStep $ closed pts)
 
-instance Shape Polygon where
-  randomInside p
-    | length ## p == 3 = randomInsideTriangle p
-    | otherwise = undefined
+data Orientation = Colinear | Clockwise | Counterclockwise
+orientation :: Pt -> Pt -> Pt -> Orientation
+orientation p q r
+  | slope (p :~ q) > slope (q :~ r) = Clockwise
+  | slope (p :~ q) < slope (q :~ r) = Counterclockwise
+  | otherwise                       = Colinear
+
+-- instance Boundary Polygon where
+--   containsPoint :: Polygon -> Pt -> Bool
+--   containsPoint poly pt
+--     | length ## poly < 3 = False
+--     | otherwise = loop 0 ((length ## poly) - 1)
+--         where loop i 0 = 
+
+-- instance Shape Polygon where
+--   randomInside p
+--     | length ## p == 3 = randomInsideTriangle p
+--     | otherwise = undefined
   
-  boundingBox = (boundingBoxPts ##)
+--   boundingBox = (boundingBoxPts ##)
   
 boundingBoxPts :: [Pt] -> Polygon
 boundingBoxPts ((x1 :& y1) : pts) = boundingBoxPts' x1 x1 y1 y1 pts
@@ -223,10 +264,10 @@ boundingBoxPts ((x1 :& y1) : pts) = boundingBoxPts' x1 x1 y1 y1 pts
     boundingBoxPts' l r t b [] = Polygon [l :& b, l :& t, r :& t, r :& b]
     boundingBoxPts' l r t b ((x :& y) : pts) = boundingBoxPts' (l `min` x) (r `max` x) (t `max` y) (b `min` y) pts
 
-instance PtList Polygon where
-  f # Polygon pts = Polygon (f pts)
-  f ## Polygon pts = f pts
-  (%%) = (. Polygon)
+instance PtList PolygonOf where
+  f # PolygonOf pts = PolygonOf (f pts)
+  f ## PolygonOf pts = f pts
+  (%%) = (. PolygonOf)
 
 randomInsideTriangle :: Polygon -> Generate Pt
 randomInsideTriangle (Polygon [pt1, pt2, pt3]) = 
@@ -271,13 +312,25 @@ rect' p rx ry = Polygon [p .+^ V2 (-rx) (-ry), p .+^ V2 (-rx) ry, p .+^ V2 rx ry
 -------------------------------
 -- Circle
 
-data Circle = Circle Pt Double
-  deriving (Show, Eq)
+data CircleOf a = CircleOf a Double
+  deriving stock (Show, Eq, Ord, Functor, Foldable, Traversable)
+
+type Circle = CircleOf Pt
+
+pattern Circle :: Pt -> Double -> Circle
+pattern Circle pt r = CircleOf pt r
+{-# COMPLETE Circle #-}
 
 instance Draw Circle where
   draw (Circle (x :& y) r) = arc x y r 0 (2 * pi)
 
-instance Shape Circle where
+randomInsideCircle (Circle (cx :& cy) radius) = do
+  r' <- random
+  let r = radius * sqrt r'
+  a <- 0 <=> (2 * pi)
+  return $ (cx + r * cos a) :& (cy + r * sin a)
+
+-- instance Shape Circle where
   -- Concentrated at center, can also be useful though
 
   -- randomInside (Circle (cx :& cy) radius) = do
@@ -286,20 +339,30 @@ instance Shape Circle where
   --   return $ (cx + r * cos a) :& (cy + r * sin a)
 
   -- uniform
-  randomInside (Circle (cx :& cy) radius) = do
-    r' <- random
-    let r = radius * sqrt r'
-    a <- 0 <=> (2 * pi)
-    return $ (cx + r * cos a) :& (cy + r * sin a)
+  -- randomInside (Circle (cx :& cy) radius) = do
+  --   r' <- random
+  --   let r = radius * sqrt r'
+  --   a <- 0 <=> (2 * pi)
+  --   return $ (cx + r * cos a) :& (cy + r * sin a)
 
-  boundingBox (Circle center radius) =
-    square' center radius
+  -- boundingBox (Circle center radius) =
+  --   square' center radius
 
 -------------------------------
 -- Line
 
-data Line = Line Pt Pt
-  deriving (Show, Eq)
+data LineOf a = LineOf a a
+  deriving stock (Show, Eq, Ord, Functor, Foldable, Traversable)
+
+type Line = LineOf Pt
+
+pattern Line :: Pt -> Pt -> Line
+pattern Line pt1 pt2 = LineOf pt1 pt2
+{-# COMPLETE Line #-}
+
+pattern (:~) :: Pt -> Pt -> Line
+pattern pt1 :~ pt2 = Line pt1 pt2
+{-# COMPLETE (:~) #-}
 
 instance Draw Line where
   draw (Line pt1 pt2) = polyline [pt1, pt2] 
@@ -307,11 +370,21 @@ instance Draw Line where
 instance Trail Line where
   pointsOn (Line pt1 pt2) = [pt1, pt2] 
 
+slope :: Line -> Double
+slope ((px :& py) :~ (qx :& qy)) = (qy - py) / (qx - px)
+
 -------------------------------
 -- Curve
 
-newtype Curve = Curve [Pt]
-  deriving (Show, Eq)
+newtype CurveOf a = CurveOf [a]
+  deriving stock (Show, Eq, Ord, Functor, Foldable, Traversable)
+  deriving newtype (Applicative, Monad)
+
+type Curve = CurveOf Pt
+
+pattern Curve :: [Pt] -> Curve
+pattern Curve pt = CurveOf pt
+{-# COMPLETE Curve #-}
 
 instance Draw Curve where
   draw (Curve pts) = polyline pts
@@ -322,10 +395,10 @@ instance Trail Curve where
 instance Smooth Curve where
   chaikinStep (Curve pts) = Curve (generalChaikinStep pts)
 
-instance PtList Curve where
-  f # Curve pts = Curve (f pts)
-  f ## Curve pts = f pts
-  (%%) = (. Curve)
+instance PtList CurveOf where
+  f # CurveOf pts = CurveOf (f pts)
+  f ## CurveOf pts = f pts
+  (%%) = (. CurveOf)
 
 generalChaikinStep :: [Pt] -> [Pt]
 generalChaikinStep (pt1 : pt2 : pts) = [pt1 * 0.75 + pt2 * 0.25, pt1 * 0.25 + pt2 * 0.75] ++ generalChaikinStep (pt2 : pts)

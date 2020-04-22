@@ -139,7 +139,7 @@ test = runChaosBoxWith (\opt -> opt {optWidth = 100, optHeight = 100, optScale=1
 
 randomWalk :: Circle -> Generate ()
 randomWalk s = do
-  pts <- replicateM 10 $ randomInside s
+  pts <- replicateM 10 $ randomInsideCircle s
   cairo $ mapM_ (\pt -> draw (circle pt 0)) pts
 
 fromIntegralVector :: V2 Int -> V2 Double

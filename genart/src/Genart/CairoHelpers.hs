@@ -28,7 +28,7 @@ import Numeric (readHex)
 import Data.List.Split (splitOn, chunksOf)
 import Text.Printf
 import System.Directory (createDirectoryIfMissing)
--- import ChaosBox.AABB         as C
+import ChaosBox.AABB         as C
 -- import ChaosBox.Affine       as C
 import ChaosBox.CLI          as C
 -- import ChaosBox.Color        as C
@@ -41,7 +41,7 @@ import ChaosBox.Interactive  as C
 -- import ChaosBox.Orphanage    as C
 -- import ChaosBox.PNG          as C
 -- import ChaosBox.Prelude      as C
--- import ChaosBox.Random       as C
+import ChaosBox.Random       as C
 import GI.Cairo.Render
 
 
