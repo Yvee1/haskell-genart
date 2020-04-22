@@ -14,7 +14,7 @@ sketch = do
 
   let lines = map branchToLine branches
 
-  fillScreen black 1
+  fillScreen $ black 1
   cairo $ do
     setLineWidth 0.15
     setLineCap LineCapRound
@@ -27,7 +27,7 @@ sketch = do
 
     white 1
 
-  mapM_ (\l -> cairo (draw l) *> cairo stroke *> renderProgress) lines
+  mapM_ (\l -> cairo (draw l) *> cairo stroke) lines
 
 main :: IO ()
-main = outputSketch (100, 100, 10, False) sketch 
+main = runChaosBoxWith (\o -> o {optWidth = 100, optHeight = 100, optScale=10}) (eventLoop sketch)

@@ -5,13 +5,6 @@
 
 packages:
 - completed:
-    hackage: cairo-0.13.6.1@sha256:6ec483dc48865d55e903aacb8740aee2d4831b8c0f34eebbf7a323edafdabb37,4075
-    pantry-tree:
-      size: 2830
-      sha256: fe4992b0f5df82083c32f13d211525515ac2d6eecef81b46ca3ef008753a521e
-  original:
-    hackage: cairo-0.13.6.1@sha256:6ec483dc48865d55e903aacb8740aee2d4831b8c0f34eebbf7a323edafdabb37,4075
-- completed:
     hackage: hsnoise-0.0.2@sha256:ebde231014d8c1f4c44e9760742824af87645cdff1f223c2efe16d79bc418587,1306
     pantry-tree:
       size: 535
@@ -19,12 +12,26 @@ packages:
   original:
     hackage: hsnoise-0.0.2@sha256:ebde231014d8c1f4c44e9760742824af87645cdff1f223c2efe16d79bc418587,1306
 - completed:
-    hackage: gtk2hs-buildtools-0.13.5.4@sha256:0f18b0103fa7a3cbc28edc6a97bdaf08e1f9bd273ef26d2ad498630ec6d0ac9c,5288
+    hackage: gi-cairo-render-0.0.1@sha256:ff2ccc309c021c2c023fa0d380375ef36cff2df93e0c78ed733f052dd1aa9782,3502
     pantry-tree:
-      size: 3588
-      sha256: df6fdd3aaf8b9d3dd420b5c5906751d7399f1999607b396141d1493c76472e1b
+      size: 1603
+      sha256: e05dbca4c5acaf73903c142fc586d42ac8e2b57aabcc890053f8b02b1067d60a
   original:
-    hackage: gtk2hs-buildtools-0.13.5.4@sha256:0f18b0103fa7a3cbc28edc6a97bdaf08e1f9bd273ef26d2ad498630ec6d0ac9c,5288
+    hackage: gi-cairo-render-0.0.1@sha256:ff2ccc309c021c2c023fa0d380375ef36cff2df93e0c78ed733f052dd1aa9782,3502
+- completed:
+    size: 58453
+    url: https://github.com/5outh/chaosbox/archive/93093054cfdf2af0f5d72546aada2c5d474b8c27.tar.gz
+    cabal-file:
+      size: 3246
+      sha256: 6a772787f8a42c48ce7c8fa22ed1ca2116e1b6153fd89f55c3a68c6ec08fe2bd
+    name: chaosbox
+    version: 0.0.0.1
+    sha256: af358984f742e0a58e7c5ead980d377e590479d847126be93b319036b2e32f29
+    pantry-tree:
+      size: 2492
+      sha256: 115e3a2c00599e78138d9d245cdaf292b7c0b7d9555dc26d0d8e89ff1f69f18d
+  original:
+    url: https://github.com/5outh/chaosbox/archive/93093054cfdf2af0f5d72546aada2c5d474b8c27.tar.gz
 snapshots:
 - completed:
     size: 525876

@@ -16,15 +16,10 @@ import Linear.Metric
 import Data.Random
 import Data.RVar
 
+import ChaosBox (Draw, draw)
+
 -------------------------------
 -- Type classes
-
-class Draw a where
-  draw :: a -> Render ()
-
--- class DrawGroup t where
-  -- drawStroke :: t -> Render ()
-  -- drawFill   :: t -> Render ()
 
 class Shape s where
   randomInside :: s -> Generate Pt

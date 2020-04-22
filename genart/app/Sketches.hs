@@ -1,10 +1,12 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Test where
+module Sketches where
 
 import Genart
 import Control.Monad
 import Data.List (nub)
+import Data.Random (uniform, randomElement)
+import Data.RVar
 
 eggshell :: Double -> Render ()
 eggshell = hsva 71 0.13 0.96
@@ -19,7 +21,7 @@ englishVermillion :: Double -> Render ()
 englishVermillion = hsva 355 0.68 0.84
 
 grid :: IO ()
-grid = outputSketch (100, 100, 10, False) $ do
+grid = runChaosBoxWith (\opt -> opt {optWidth = 100, optHeight = 100, optScale=10}) $ eventLoop $ do
   fillScreen $ darkGunmetal 1
   (w, h) <- getSize @Double
   let c = w/2 :& h/2
@@ -44,7 +46,7 @@ grid = outputSketch (100, 100, 10, False) $ do
     sequence_ [draw (square (x :& y) 3) *> fill | x <- [5, 10..95], y <- [5, 10..95]]
   
 perron :: IO ()
-perron = outputSketch (100, 100, 10, False) $ do
+perron = runChaosBoxWith (\opt -> opt {optWidth = 100, optHeight = 100, optScale=10}) $ eventLoop $ do
     (w, h) <- getSize @Double
     let bg = hsva 0 0 0.12 1
     let c = w/2 :& h/2
@@ -86,7 +88,7 @@ drawPointsGrid w h s = do
   mapM_ (\pt -> draw (circle pt s) *> fill) (pointsOn g1 ++ pointsOn g2)
 
 test :: IO ()
-test = outputSketch (100, 100, 10, False) $ do
+test = runChaosBoxWith (\opt -> opt {optWidth = 100, optHeight = 100, optScale=10}) $ eventLoop $ do
   (w, h) <- getSize @Double
   let beige = hsva 0 0 0.9
   let bg = beige
@@ -139,3 +141,41 @@ randomWalk :: Circle -> Generate ()
 randomWalk s = do
   pts <- replicateM 10 $ randomInside s
   cairo $ mapM_ (\pt -> draw (circle pt 0)) pts
+
+fromIntegralVector :: V2 Int -> V2 Double
+fromIntegralVector (V2 x y) = V2 (fromIntegral x) (fromIntegral y)
+
+genQuadGrid :: Generate [Polygon]
+genQuadGrid = do
+  (w, h) <- getSize @Int
+  points <- replicateM 800 $ do
+    v <- V2 <$> (3 <=> (w `div` 2 - 3)) <*> (3 <=> (h `div` 2 - 3))
+    let pt = P $ fromIntegralVector v
+    pure $ pt * 2
+  pure . nub . flip map points $ \pt ->
+    Polygon [pt, pt .+^ V2 0 1.5, pt .+^ V2 1.5 1.5, pt .+^ V2 1.5 0]
+    
+teaGreen :: Double -> Render ()
+teaGreen = hsva 81 0.25 0.94
+
+kovach :: IO ()
+kovach = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20 }) $ eventLoop $ do
+  fillScreen $ eggshell 1
+
+  cairo $ setLineWidth 0.15
+
+  quads <- genQuadGrid
+  noisyQuads <- traverse polyAddNoise quads
+
+  for_ noisyQuads $ \quad -> do
+    -- strokeOrFill <- sampleRVar $ weightedElement [(0.4, fill), (0.6, stroke)]
+    strokeOrFill <- sampleRVar $ randomElement [fill, stroke]
+    color <- sampleRVar $ randomElement
+       [ teaGreen
+       , vividTangerine
+       , englishVermillion
+       , darkGunmetal
+       ]
+    cairo $ do
+      draw quad
+      color 1 *> strokeOrFill

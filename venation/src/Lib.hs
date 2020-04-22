@@ -25,7 +25,7 @@ type Vec = V2 Double
 
 newtype Source = Source (V2 Double) deriving Show
 instance Draw Source where
-  draw (Source (V2 x y)) = draw (circle (x .& y) 0.2)
+  draw (Source (V2 x y)) = draw (circle (x :& y) 0.2)
 
 type Props = (V2 Double, V2 Double)
 type Branch = Tree Props
@@ -133,4 +133,4 @@ step state@(branches, sources) = do
 
 branchToLine :: Branch -> Line
 branchToLine (Node (pos@(V2 x y), V2 dx dy) _) =
-  Line (x .& y) (x + dx * len .& y + dy * len) 
+  Line (x :& y) (x + dx * len :& y + dy * len) 

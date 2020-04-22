@@ -2,11 +2,11 @@
 
 module Main where
 
-import Lib
+-- import Lib
 import Genart
 
 main :: IO ()
-main = outputSketch (100, 100, 10, False) $ do
+main = runChaosBoxWith (\o -> o {optWidth = 100, optHeight = 100, optScale=10}) $ eventLoop $ do
   (w, h) <- getSize @Double
   let center = w/2 :& h/2
   let bg = white 1
