@@ -182,8 +182,29 @@ kovach = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20
       color 1 *> strokeOrFill
 
 
-svgTest = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20 }) $ eventLoop $ do
-  svg <- liftIO $ loadSvg "flame.svg"
+svgTest = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20 }) $ do
+  (w, h) <- getSize @Double
+  let c = w/2 :& h/2
 
-  fillScreen $ black 1
-  cairo $ draw svg
+  flame <- cairo $ svg "flame.svg" 10
+  let (flameW, flameH) = dimensionsOfSvg flame
+  let s = rect (c + (flameW/2 :& flameH/2)) flameW flameH
+  
+  cairo $ setLineWidth 0.15
+
+  eventLoop $ do
+    fillScreen $ black 1
+    cairo $ do
+
+      -- m <- getMatrix
+
+      draw s
+      white 1
+      stroke
+
+      drawSvg flame c
+      -- translate (w/2) (h/2)
+      -- scale 0.5 0.5
+
+
+    -- setMatrix m
