@@ -88,6 +88,9 @@ instance PtLike Pt where
   setX (x :& y) x' = x' :& y
   setY (x :& y) y' = x  :& y'
 
+  getPt = id
+  setPt _ pt = pt
+
 point :: Double -> Double -> Pt
 point x y = x :& y
 
@@ -296,15 +299,13 @@ infix 5 @@
 (Polygon pts) @@ n = pts !! n
 
 square :: PtLike p => p -> Double -> Polygon
-square p w = square' p (w/2)
-  where p = point (getX p) (getY p)
+square p w = square' (getPt p) (w/2)
 
-square' :: Pt-> Double -> Polygon
+square' :: Pt -> Double -> Polygon
 square' p r = rect' p r r
 
 rect :: PtLike p => p -> Double -> Double -> Polygon
-rect p wx wy = rect' p (wx/2) (wy/2)
-  where p = point (getX p) (getY p)
+rect p wx wy = rect' (getPt p) (wx/2) (wy/2)
 
 rect' :: Pt -> Double -> Double -> Polygon
 rect' p rx ry = Polygon [p .+^ V2 (-rx) (-ry), p .+^ V2 (-rx) ry, p .+^ V2 rx ry, p .+^ V2 rx (-ry)]
