@@ -98,7 +98,7 @@ test = runChaosBoxWith (\opt -> opt {optWidth = 100, optHeight = 100, optScale=1
   let c = w/2 :& h/2
   fillScreen (bg 1)
   let p = square' c 40
-  let ell = circle 0 20
+  let ell = circle (0 :& 0) 20
 
   cairo $ do
     -- translate (getX c) (getY c)
@@ -181,7 +181,7 @@ kovach = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20
       draw quad
       color 1 *> strokeOrFill
 
-
+svgTest :: IO ()
 svgTest = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20 }) $ do
   (w, h) <- getSize @Double
   let c = w/2 :& h/2
@@ -208,3 +208,29 @@ svgTest = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 2
 
 
     -- setMatrix m
+
+print' :: (MonadIO m, Show a) => a -> m ()
+print' = liftIO . print
+
+ptsQuickstart :: IO ()
+ptsQuickstart = runChaosBoxWith (\o -> o { optWidth = 100, optHeight = 100, optScale = 10, optFps = 144 }) $ do
+  let bg = hexa "#ff0033" 1
+  fillScreen bg
+  space <- getSpace
+  c <- getCenter
+  let (bl, tr) = bltr space
+
+  cairo $ setLineWidth 0.15
+
+  onMouseMotion $ \mouse -> do
+    fillScreen bg
+
+    let n = 30
+    cairo $ do
+      white 1
+      let subpointsFrom pt = subpoints (pt :~ mouse) n
+      let corners = zip (subpointsFrom bl) (subpointsFrom tr)
+      let rects = (\(bltr, i) -> rotatePolygonAround mouse (i * pi / (2 * fromIntegral n)) (fromBltr bltr)) <$> zip corners [0..]
+      mapM_ (\r -> draw r *> stroke) rects
+
+  eventLoop (pure ())

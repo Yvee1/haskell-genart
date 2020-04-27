@@ -4,5 +4,5 @@ module Genart.Shapes.Circle where
 import Genart.CairoHelpers
 import Genart.Shapes.Types
 
-circle :: Pt -> Double -> Circle
-circle = Circle
+circle :: PtLike p => p -> Double -> Circle
+circle = Circle . getPt

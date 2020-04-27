@@ -35,7 +35,6 @@ import ChaosBox.CLI          as C
 import ChaosBox.Draw         as C
 import ChaosBox.Generate     as C
 -- import ChaosBox.Geometry     as C
-import ChaosBox.Interactive  as C
 -- import ChaosBox.Math         as C
 -- import ChaosBox.Noise        as C
 -- import ChaosBox.Orphanage    as C
@@ -43,8 +42,6 @@ import ChaosBox.Interactive  as C
 -- import ChaosBox.Prelude      as C
 import ChaosBox.Random       as C
 import GI.Cairo.Render
-
-
 
 fillScreen :: Render a -> Generate ()
 fillScreen color = do

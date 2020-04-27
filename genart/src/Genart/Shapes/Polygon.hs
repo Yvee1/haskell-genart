@@ -1,10 +1,15 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances, TypeApplications #-}
 module Genart.Shapes.Polygon where
 
 import Genart.CairoHelpers
 import Genart.Shapes.Types
 import Genart.Shapes.Line (intersectRay)
 import Data.Maybe (fromMaybe)
+
+getSpace :: Generate Polygon
+getSpace = do
+  (w, h) <- getSize @Double
+  return $ Polygon [0:&0, w:&0, w:&h, 0:&h]
 
 polygon :: [Pt] -> Polygon
 polygon = Polygon

@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, PatternSynonyms, ScopedTypeVariables, DeriveFoldable, DeriveFunctor, DeriveTraversable, DerivingStrategies, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, PatternSynonyms, ScopedTypeVariables, DeriveFoldable, DeriveFunctor, DeriveTraversable, DerivingStrategies, GeneralizedNewtypeDeriving, MultiParamTypeClasses, TypeApplications #-}
 
 module Genart.Shapes.Types (
   module Genart.Shapes.Types,
@@ -94,6 +94,24 @@ instance PtLike Pt where
 point :: Double -> Double -> Pt
 point x y = x :& y
 
+interpolate :: Pt -> Pt -> Double -> Pt
+interpolate (P v1) (P v2) t = P $ (1-t) *^ v1 + t *^ v2
+
+rotatePt :: PtLike p => Double -> p -> Pt
+rotatePt θ pt = x' :& y'
+  where (x :& y) = getPt pt
+        x' = x * cos θ - y * sin θ
+        y' = x * sin θ + y * cos θ
+
+rotatePts :: (PtLike p, Functor f) => Double -> f p -> f Pt
+rotatePts θ = fmap (rotatePt θ)
+
+rotatePtAround :: (PtLike p, PtLike q) => p -> Double -> q -> Pt
+rotatePtAround center θ pt = getPt center + rotatePt θ (getPt pt - getPt center)
+
+rotatePtsAround :: (PtLike p, PtLike q, Functor f) => p -> Double -> f q -> f Pt
+rotatePtsAround center θ = fmap (rotatePtAround center θ)
+
 -- infix 5 .&
 -- (.&) :: Double -> Double -> Pt
 -- (.&) = point
@@ -102,6 +120,11 @@ randomPt :: (MonadRandom m) => (Double, Double) -> (Double, Double) -> m Pt
 randomPt xrange yrange =
   do vec <- randomVec xrange yrange
      return (P vec)
+
+getCenter :: Generate Pt
+getCenter = do
+  (w, h) <- getSize @Double
+  return (w/2 :& h/2)
 
 instance Draw [Pt] where
   draw = drawPts
@@ -298,6 +321,21 @@ infix 5 @@
 (@@) :: Polygon -> Int -> Pt
 (Polygon pts) @@ n = pts !! n
 
+-- get bottom left and top right corners
+bltr :: Polygon -> (Pt, Pt)
+bltr (Polygon pts@(pt:_))
+  | length pts /= 4 = error "Polygon:bltr only works on rectangles"
+  | otherwise = bltr' pts pt pt
+      where bltr' [] bl tr = (bl, tr)
+            bltr' (p@(x :& y) : ps) bl@(blx :& bly) tr@(trx :& try)
+              | x < blx || y < bly = bltr' ps p tr
+              | x > trx || y > try = bltr' ps bl p
+              | otherwise          = bltr' ps bl tr
+
+-- make rectangle from bottom left and top right corners
+fromBltr :: (Pt, Pt) -> Polygon
+fromBltr (bl@(x1 :& y1), tr@(x2 :& y2)) = Polygon [bl, x2 :& y1, tr, x1 :& y2]
+
 square :: PtLike p => p -> Double -> Polygon
 square p w = square' (getPt p) (w/2)
 
@@ -309,6 +347,12 @@ rect p wx wy = rect' (getPt p) (wx/2) (wy/2)
 
 rect' :: Pt -> Double -> Double -> Polygon
 rect' p rx ry = Polygon [p .+^ V2 (-rx) (-ry), p .+^ V2 (-rx) ry, p .+^ V2 rx ry, p .+^ V2 rx (-ry)]
+
+rotatePolygon :: Double -> Polygon -> Polygon
+rotatePolygon = rotatePts
+
+rotatePolygonAround :: PtLike p => p -> Double -> Polygon -> Polygon
+rotatePolygonAround = rotatePtsAround
 
 -------------------------------
 -- Circle
