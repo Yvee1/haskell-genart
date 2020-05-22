@@ -37,8 +37,10 @@ packages:
 extra-deps:
 - hsnoise-0.0.2@sha256:ebde231014d8c1f4c44e9760742824af87645cdff1f223c2efe16d79bc418587,1306
 - gi-cairo-render-0.0.1@sha256:ff2ccc309c021c2c023fa0d380375ef36cff2df93e0c78ed733f052dd1aa9782,3502
-- github: 5outh/chaosbox
-  commit: 93093054cfdf2af0f5d72546aada2c5d474b8c27
+# - github: 5outh/chaosbox
+  # commit: 93093054cfdf2af0f5d72546aada2c5d474b8c27
+- github: Yvee1/chaosbox
+  commit: cbf98ea3df443cdd61af16ae7d9b3d0098155fdb
 - github: Yvee1/hs-librsvg
   commit: d78c17a45a00c2686853247e20a692b24a7915fc
 # - optics-0.2@sha256:813ef6cc4d2e2b5ee00435831031f38917ba01d1e56dcb62dc18cd0315a9ccb7,6296

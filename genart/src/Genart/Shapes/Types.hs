@@ -75,6 +75,7 @@ ptSize = 0.2
 
 infix 5 :&
 pattern (:&) x y = P (V2 x y) :: Pt
+{-# COMPLETE (:&) #-}
 
 instance Draw Pt where
   draw (x :& y) = arc x y ptSize 0 (2 * pi)

@@ -225,7 +225,7 @@ ptsQuickstart = runChaosBoxWith (\o -> o { optWidth = 100, optHeight = 100, optS
   onMouseMotion $ \mouse -> do
     fillScreen bg
 
-    let n = 30
+    let n = 50
     cairo $ do
       white 1
       let subpointsFrom pt = subpoints (pt :~ mouse) n

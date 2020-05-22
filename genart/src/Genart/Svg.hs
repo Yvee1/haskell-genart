@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
 module Genart.Svg where
 
 import Genart.CairoHelpers

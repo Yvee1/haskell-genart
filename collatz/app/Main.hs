@@ -7,13 +7,13 @@ len = 1
 ang = 0.1
 
 next :: Int -> Int
-next n = if even n then n `div` 2 else ((n*3+1) `div` 2)
+next n = if even n then n `div` 2 else (n*3+1) `div` 2
 
 collatz :: Int -> [Int]
 collatz n = takeWhile (> 1) (iterate next n) ++ [1]
 
 steps :: Int -> Int
-steps = (subtract 1) . length . collatz
+steps = subtract 1 . length . collatz
 
 bg :: Double -> Render ()
 -- bg = hsva 355 0.68 0.84
@@ -29,8 +29,8 @@ drawCollatz ns = do
   matrix <- getMatrix
 
   for_ ns $ \n -> do
-    if (n `mod` 2 == 0)
-      then rotate (ang)
+    if n `mod` 2 == 0
+      then rotate ang
       else rotate (-ang) 
     draw $ Line (0 :& 0) (0 :& (-len))
     translate 0 (-len)
@@ -45,7 +45,7 @@ renderSketch = do
 
   let seqs = map (reverse . collatz) [1..1000]
 
-  for_ seqs $ \seq -> do
+  for_ seqs $ \seq ->
     cairo $ do
       setLineWidth 0.1
       drawCollatz seq

@@ -45,23 +45,23 @@ main = defaultMain
 module Lib where
 
 {-# START_FILE app/Main.hs #-}
-{-# LANGUAGE TypeApplications #-}
-
 module Main where
 
 import Lib
 import Genart
-main :: IO ()
-main = outputSketch (100, 100, 10, False) $ do
-  (w, h) <- getSize @Double
-  let c = w/2 :& h/2
-  let bg = white 1
-  fillScreen bg
 
-  cairo $ do
-    black 1
-    draw $ circle c 25
-    fill
+main :: IO ()
+main = runChaosBoxWith (\o -> o { optWidth = 60, optHeight = 60, optScale = 20 }) $ do
+  c <- getCenter
+  let bg = white 1
+
+  eventLoop $ do
+    fillScreen bg
+
+    cairo $ do
+      black 1
+      draw $ circle c 25
+      fill
 
 {-# START_FILE README.md #-}
 # {{name}}
@@ -84,3 +84,5 @@ extra-deps:
   - gi-cairo-render-0.0.1@sha256:ff2ccc309c021c2c023fa0d380375ef36cff2df93e0c78ed733f052dd1aa9782,3502
   - github: 5outh/chaosbox
     commit: 93093054cfdf2af0f5d72546aada2c5d474b8c27
+  - github: Yvee1/hs-librsvg
+    commit: d78c17a45a00c2686853247e20a692b24a7915fc
