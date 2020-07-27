@@ -84,8 +84,8 @@ electric pos charge pt = if d /= 0 then charge *^ v ^/ (d ** 3) else 0 ^& 0
 
 drawPointsGrid :: Double -> Double -> Double -> Render ()
 drawPointsGrid w h s = do
-  let g1 = makeGrid [0..w] [0, 2..h] (const ())
-  let g2 = makeGrid [0.5, 1.5..w] [1, 3..h] (const ())
+  let g1 = makeGrid [0..w] [0, 2..h]
+  let g2 = makeGrid [0.5, 1.5..w] [1, 3..h]
   mapM_ (\pt -> draw (circle pt s) *> fill) (pointsOn g1 ++ pointsOn g2)
 
 test :: IO ()
@@ -228,7 +228,7 @@ ptsQuickstart = runChaosBoxWith (\o -> o { optWidth = 100, optHeight = 100, optS
     let n = 50
     cairo $ do
       white 1
-      let subpointsFrom pt = subpoints (pt :~ mouse) n
+      let subpointsFrom pt = subpoints n (pt :~ mouse)
       let corners = zip (subpointsFrom bl) (subpointsFrom tr)
       let rects = (\(bltr, i) -> rotatePolygonAround mouse (i * pi / (2 * fromIntegral n)) (fromBltr bltr)) <$> zip corners [0..]
       mapM_ (\r -> draw r *> stroke) rects

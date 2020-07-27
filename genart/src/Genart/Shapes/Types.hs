@@ -133,6 +133,9 @@ instance Draw [Pt] where
 drawPts :: [Pt] -> Render ()
 drawPts pts = for_ pts $ \pt@(x :& y) -> moveTo (x+ptSize) y *> draw pt *> fill
 
+instance Smooth [Pt] where
+  chaikinStep = generalChaikinStep
+
 -------------------------------
 -- Vector
 
@@ -238,9 +241,12 @@ row n (Grid g) = g !! n
 column :: Int -> Grid a -> [(Pt, a)]
 column n (Grid g) = map (!! n) g
 
-makeGrid :: [Double] -> [Double] -> (Pt -> a) -> Grid a
-makeGrid xs ys f = Grid g
+makeCustomGrid :: [Double] -> [Double] -> (Pt -> a) -> Grid a
+makeCustomGrid xs ys f = Grid g
   where g = [[(pt, f pt) | x <- xs, let pt = x :& y] | y <- ys]
+
+makeGrid :: [Double] -> [Double] -> Grid ()
+makeGrid xs ys = makeCustomGrid xs ys (const ())
 
 -------------------------------
 -- Polygon
